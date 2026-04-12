@@ -160,7 +160,7 @@ export default function BeforeAfterShowcase() {
                   </div>
                   <div style={{ padding: '20px' }}>
                     <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.7, fontStyle: 'italic' }}>
-                      "{active.before}"
+                      &quot;{active.before}&quot;
                     </p>
                   </div>
                 </div>
@@ -216,7 +216,7 @@ export default function BeforeAfterShowcase() {
                       </div>
                       <div style={{ padding: '20px' }}>
                         <p style={{ fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: 1.75, fontWeight: 500 }}>
-                          "{active.after}"
+                          &quot;{active.after}&quot;
                         </p>
                       </div>
                     </motion.div>

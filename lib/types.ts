@@ -166,6 +166,7 @@ export interface CV {
   templateId: string;
   targetJob?: string;
   targetCompany?: string;
+  jobDescription?: string;
   language: CVLanguage;
   theme: CVTheme;
   sections: {

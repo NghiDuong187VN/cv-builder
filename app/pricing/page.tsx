@@ -5,9 +5,9 @@ import FeatureComparison from '@/components/home/FeatureComparison';
 import BeforeAfterShowcase from '@/components/home/BeforeAfterShowcase';
 
 export const metadata = {
-  title: 'Bảng Giá | CVFlow',
+  title: 'Bang Gia | CVFlow',
   description:
-    'Chọn gói phù hợp. Bắt đầu miễn phí, nâng cấp khi cần. Premium giúp CV của bạn chuyên nghiệp hơn và tăng cơ hội ứng tuyển thành công.',
+    'Chon goi phu hop. Bat dau mien phi, nang cap khi can. Premium mo khoa ATS Optimizer, cover letter AI va rewrite kinh nghiem bang Gemini.',
 };
 
 export default function PricingPage() {
@@ -15,13 +15,11 @@ export default function PricingPage() {
     <>
       <Navbar />
       <div style={{ paddingTop: '80px', minHeight: '100vh' }}>
-        {/* Hero */}
         <div
           style={{
             textAlign: 'center',
             padding: '72px 24px 56px',
-            background:
-              'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)',
             borderBottom: '1px solid var(--border)',
           }}
         >
@@ -38,7 +36,7 @@ export default function PricingPage() {
             }}
           >
             <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--primary)' }}>
-              💰 Bảng giá minh bạch
+              Bang gia minh bach
             </span>
           </div>
           <h1
@@ -49,7 +47,7 @@ export default function PricingPage() {
               lineHeight: 1.15,
             }}
           >
-            Đầu tư vào CV của bạn
+            Ban CV dep la buoc dau.
             <br />
             <span
               style={{
@@ -59,33 +57,26 @@ export default function PricingPage() {
                 backgroundClip: 'text',
               }}
             >
-              là đầu tư vào sự nghiệp
+              Ban kha nang qua vong moi la gia tri that.
             </span>
           </h1>
           <p
             style={{
               color: 'var(--text-secondary)',
-              maxWidth: '500px',
+              maxWidth: '620px',
               margin: '0 auto',
               fontSize: '1.05rem',
               lineHeight: 1.7,
             }}
           >
-            Bắt đầu hoàn toàn miễn phí. Nâng cấp bất cứ lúc nào để có CV chuyên nghiệp hơn,
-            được tối ưu cho nhà tuyển dụng và vượt qua vòng lọc ATS.
+            Goi Free giup user vao nhanh va thay gia tri ngay. Goi Premium mo khoa phan an tien nhat:
+            AI rewrite kinh nghiem, ATS review theo JD va cover letter tao xong co the luu ngay vao tai khoan.
           </p>
         </div>
 
-        {/* Pricing cards – 3 tiers */}
         <PricingSection />
-
-        {/* AI Before/After Demo */}
         <BeforeAfterShowcase />
-
-        {/* Full feature comparison table */}
         <FeatureComparison />
-
-        {/* FAQ */}
         <FaqSection />
       </div>
       <Footer />
@@ -96,49 +87,46 @@ export default function PricingPage() {
 function FaqSection() {
   const faqs = [
     {
-      q: 'Gói miễn phí có đủ để xin việc không?',
-      a: 'Hoàn toàn đủ! Bạn có thể tạo CV đẹp, xuất PDF và chia sẻ link với nhà tuyển dụng. Premium và Pro giúp bạn làm nhanh hơn, đẹp hơn và tối ưu hóa nội dung để tăng khả năng được gọi phỏng vấn.',
+      q: 'Goi mien phi co du de xin viec khong?',
+      a: 'Du de bat dau. User co the tao CV dep, xuat PDF, chia se link va dung AI tao summary co ban 3 luot moi ngay. Premium danh cho giai doan user can toi uu CV theo tung vi tri cu the.',
     },
     {
-      q: 'Tôi có thể hủy gói Premium bất cứ lúc nào không?',
-      a: 'Có. Bạn có thể hủy bất cứ lúc nào, không cần lý do. Tài khoản sẽ về Free vào cuối tháng hiện tại, dữ liệu CV vẫn được giữ nguyên.',
+      q: 'Premium dang tien o diem nao?',
+      a: 'Premium dang tien khi user dang ung tuyen nghiem tuc: AI rewrite tung muc kinh nghiem, ATS score co keyword gap ro rang, va cover letter tao theo target job + job description. Day la nhung tinh nang tao chenh lech ro voi goi Free.',
     },
     {
-      q: 'Tính năng AI hoạt động như thế nào?',
-      a: 'AI phân tích nội dung bạn nhập, bổ sung từ khóa phù hợp ngành nghề, thêm số liệu cụ thể và viết lại theo đúng ngôn ngữ mà nhà tuyển dụng và hệ thống ATS kỳ vọng.',
+      q: 'Tinh nang AI hoat dong nhu the nao?',
+      a: 'Gemini chay o backend, khong lo API key tren client. AI dung du lieu that tu CV cua user nhu target job, target company va job description de sinh noi dung. Premium se dung duoc bo logic day du hon Free.',
     },
     {
-      q: 'ATS Optimizer là gì và tại sao lại quan trọng?',
-      a: 'ATS (Applicant Tracking System) là hệ thống tự động lọc CV của nhiều công ty lớn. Nếu CV không đúng định dạng hoặc thiếu từ khóa, CV sẽ bị loại trước khi có người đọc. ATS Optimizer giúp CV của bạn vượt qua bước này.',
+      q: 'ATS Optimizer tra ve gi?',
+      a: 'ATS Optimizer tra ve diem ATS, diem manh, khoang trong, keyword con thieu va danh sach recommendation. Muc tieu la de user biet phan nao can sua truoc khi gui CV.',
     },
     {
-      q: 'Gói Pro phù hợp với ai?',
-      a: 'Pro phù hợp với freelancer, người đi làm ứng tuyển nhiều vị trí cùng lúc, hoặc người muốn có trang portfolio cá nhân đẹp để chia sẻ với khách hàng và nhà tuyển dụng.',
+      q: 'Cover letter AI da luu duoc chua?',
+      a: 'Da. Sau khi tao cover letter trong editor, user co the sua lai, sao chep hoac luu thang vao tai khoan Firestore de dung lai sau.',
     },
     {
-      q: 'Có được dùng thử miễn phí không?',
-      a: 'Tất nhiên! Bạn không cần thẻ tín dụng để bắt đầu. Gói Free đã có đầy đủ tính năng cơ bản. Đặc biệt, bạn có thể dùng thử 1 lần tính năng AI viết lại với tài khoản mới.',
+      q: 'Co duoc dung thu truoc khi nang cap khong?',
+      a: 'Co. Goi Free da mo summary AI 3 luot moi ngay. Day la cach de user thu gia tri cua AI truoc khi quyet dinh nang cap Premium.',
     },
   ];
 
   return (
-    <section
-      className="section"
-      style={{ background: 'rgba(99,102,241,0.02)' }}
-    >
+    <section className="section" style={{ background: 'rgba(99,102,241,0.02)' }}>
       <div className="container" style={{ maxWidth: '760px' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, marginBottom: '12px' }}>
-            Câu hỏi thường gặp
+            Cau hoi thuong gap
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-            Không tìm thấy câu trả lời? Liên hệ chúng tôi qua Zalo hoặc Email.
+            Copy va offer o day da duoc can lai theo dung tinh nang hien co trong san pham.
           </p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {faqs.map((faq, i) => (
-            <FaqItem key={i} q={faq.q} a={faq.a} />
+          {faqs.map((faq, index) => (
+            <FaqItem key={index} q={faq.q} a={faq.a} />
           ))}
         </div>
       </div>

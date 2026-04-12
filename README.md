@@ -20,6 +20,25 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Gemini AI setup
+
+This project now includes server-side Gemini integration for the CV editor.
+
+1. Copy `.env.example` to `.env.local`.
+2. Add your Google AI Studio key to `GEMINI_API_KEY`.
+3. Add Firebase Admin service account values to:
+   - `FIREBASE_PROJECT_ID`
+   - `FIREBASE_CLIENT_EMAIL`
+   - `FIREBASE_PRIVATE_KEY`
+4. Keep Gemini and Firebase Admin keys on the server only. Do not put them in `NEXT_PUBLIC_*`.
+
+Implemented AI split:
+
+- `Free`: Gemini summary generation, limited to `3` requests per day.
+- `Premium`: everything in Free plus AI rewrite for experience bullets.
+
+The API route is available at `app/api/ai/cv-assistant/route.ts` and the editor UI is wired into `app/cv/[id]/edit/page.tsx`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
