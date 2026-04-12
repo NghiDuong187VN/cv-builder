@@ -2,9 +2,15 @@ import { App, cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
+function readEnv(name: string) {
+  const value = process.env[name];
+  return typeof value === 'string' ? value.trim() : '';
+}
+
 function getPrivateKey() {
-  const key = process.env.FIREBASE_PRIVATE_KEY;
-  return key?.replace(/\\n/g, '\n');
+  const key = readEnv('FIREBASE_PRIVATE_KEY');
+  if (!key) return '';
+  return key.replace(/^"(.*)"$/s, '$1').replace(/\\n/g, '\n').trim();
 }
 
 function getAdminApp(): App {
@@ -12,12 +18,17 @@ function getAdminApp(): App {
     return getApps()[0]!;
   }
 
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const projectId = readEnv('FIREBASE_PROJECT_ID') || readEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID');
+  const clientEmail = readEnv('FIREBASE_CLIENT_EMAIL');
   const privateKey = getPrivateKey();
+  const missingVars = [
+    !projectId && 'FIREBASE_PROJECT_ID',
+    !clientEmail && 'FIREBASE_CLIENT_EMAIL',
+    !privateKey && 'FIREBASE_PRIVATE_KEY',
+  ].filter(Boolean);
 
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error('Firebase Admin env vars are missing.');
+  if (missingVars.length) {
+    throw new Error(`Firebase Admin env vars are missing: ${missingVars.join(', ')}`);
   }
 
   return initializeApp({
