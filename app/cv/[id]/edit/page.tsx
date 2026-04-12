@@ -93,6 +93,40 @@ export default function CVEditorPage() {
   const [previewMode, setPreviewMode] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ── Resizable panel ──────────────────────────────────────────
+  const [panelWidth, setPanelWidth] = useState(400);
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, width: 400 });
+
+  const onDividerMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+    dragStart.current = { x: e.clientX, width: panelWidth };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const delta = e.clientX - dragStart.current.x;
+      const next = Math.min(680, Math.max(280, dragStart.current.width + delta));
+      setPanelWidth(next);
+    };
+    const onUp = () => {
+      if (!isDragging.current) return;
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, []);
+
   useEffect(() => {
     if (!loading && !firebaseUser) router.push('/auth');
   }, [loading, firebaseUser, router]);
@@ -255,8 +289,7 @@ export default function CVEditorPage() {
         {/* Form Panel */}
         {!previewMode && (
           <div style={{
-            width: '400px', flexShrink: 0, overflowY: 'auto',
-            borderRight: '1px solid var(--border)',
+            width: `${panelWidth}px`, flexShrink: 0, overflowY: 'auto',
             background: 'var(--bg-card)',
             height: 'calc(100vh - 102px)',
             position: 'sticky', top: '102px',
@@ -346,6 +379,52 @@ export default function CVEditorPage() {
                   onChangeTemplate={changeTemplate}
                 />
               )}
+            </div>
+          </div>
+        )}
+
+        {/* ── Draggable Divider ── */}
+        {!previewMode && (
+          <div
+            onMouseDown={onDividerMouseDown}
+            title="Kéo để thay đổi kích thước"
+            style={{
+              width: '6px',
+              flexShrink: 0,
+              background: 'var(--border)',
+              cursor: 'col-resize',
+              position: 'sticky',
+              top: '102px',
+              height: 'calc(100vh - 102px)',
+              transition: 'background 0.15s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10,
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = 'var(--primary)';
+              const dots = e.currentTarget.querySelector('.drag-dots') as HTMLElement | null;
+              if (dots) dots.style.opacity = '1';
+            }}
+            onMouseLeave={e => {
+              if (isDragging.current) return;
+              (e.currentTarget as HTMLElement).style.background = 'var(--border)';
+              const dots = e.currentTarget.querySelector('.drag-dots') as HTMLElement | null;
+              if (dots) dots.style.opacity = '0';
+            }}
+          >
+            {/* Visual drag handle dots */}
+            <div
+              className="drag-dots"
+              style={{
+                display: 'flex', flexDirection: 'column', gap: '3px',
+                opacity: 0, transition: 'opacity 0.15s', pointerEvents: 'none',
+              }}
+            >
+              {[0,1,2,3,4].map(i => (
+                <div key={i} style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'white' }} />
+              ))}
             </div>
           </div>
         )}

@@ -142,6 +142,7 @@ export type CVSection =
 
 export type CVLayout = '1col' | '2col';
 export type CVLanguage = 'vi' | 'en';
+export type CVShareMode = 'public' | 'password';
 
 export interface CVTheme {
   primaryColor: string;
@@ -158,6 +159,10 @@ export interface CV {
   title: string;
   isPublic: boolean;
   shareSlug: string;
+  sharing?: {
+    mode: CVShareMode;
+    passcode?: string;
+  };
   templateId: string;
   targetJob?: string;
   targetCompany?: string;
@@ -244,4 +249,35 @@ export interface AdminStats {
   newCVsToday: number;
   premiumUsers: number;
   popularTemplates: { templateId: string; name: string; count: number }[];
+}
+
+export interface SharedCVPayload {
+  cvId: string;
+  shareSlug: string;
+  title: string;
+  targetJob?: string;
+  templateId?: string;
+}
+
+export interface CommunityMessage {
+  id: string;
+  uid: string;
+  userName: string;
+  userEmail?: string;
+  userPhotoURL?: string;
+  text: string;
+  sharedCV?: SharedCVPayload;
+  createdAt: Date;
+  likes?: string[];      // array of uid
+  commentCount?: number; // denormalised counter
+}
+
+export interface CommunityComment {
+  id: string;
+  messageId: string;
+  uid: string;
+  userName: string;
+  userPhotoURL?: string;
+  text: string;
+  createdAt: Date;
 }

@@ -1,218 +1,193 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import {
-  Users, FileText, Eye, Download, TrendingUp, Shield,
-  Grid3X3, DollarSign, Settings, BarChart3, LogOut, Menu, X
-} from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { signOut } from '@/lib/auth';
-import { collection, getDocs, query } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
-interface Stats {
-  totalUsers: number;
-  totalCVs: number;
-  premiumUsers: number;
-  totalViews: number;
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { collection, getDocs } from 'firebase/firestore';
+import { Eye, FileText, Grid3X3, Star, Users } from 'lucide-react';
+
+import AdminShell from '@/components/admin/AdminShell';
+import { db } from '@/lib/firebase';
+import type { CV, Template, User } from '@/lib/types';
+
+type DashboardState = {
+  users: User[];
+  cvs: CV[];
+  templates: Template[];
+};
+
+function toMillis(value: unknown): number {
+  if (!value) return 0;
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === 'object' && value) {
+    const v = value as { seconds?: number; toMillis?: () => number };
+    if (typeof v.toMillis === 'function') return v.toMillis();
+    if (typeof v.seconds === 'number') return v.seconds * 1000;
+  }
+  return 0;
 }
 
-export default function AdminDashboard() {
-  const router = useRouter();
-  const { user, firebaseUser, loading, isAdmin } = useAuth();
-  const [stats, setStats] = useState<Stats>({ totalUsers: 0, totalCVs: 0, premiumUsers: 0, totalViews: 0 });
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+export default function AdminDashboardPage() {
+  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<DashboardState>({ users: [], cvs: [], templates: [] });
 
   useEffect(() => {
-    if (!loading) {
-      if (!firebaseUser || !isAdmin) router.push('/dashboard');
-    }
-  }, [loading, firebaseUser, isAdmin, router]);
-
-  useEffect(() => {
-    if (isAdmin) {
-      Promise.all([
-        getDocs(collection(db, 'users')),
-        getDocs(collection(db, 'cvs')),
-      ]).then(([usersSnap, cvsSnap]) => {
-        const users = usersSnap.docs.map(d => d.data());
-        const cvs = cvsSnap.docs.map(d => d.data());
-        setStats({
-          totalUsers: users.length,
-          totalCVs: cvs.length,
-          premiumUsers: users.filter(u => u.plan === 'premium').length,
-          totalViews: cvs.reduce((sum, cv) => sum + (cv.viewCount || 0), 0),
-        });
+    Promise.all([
+      getDocs(collection(db, 'users')),
+      getDocs(collection(db, 'cvs')),
+      getDocs(collection(db, 'templates')),
+    ]).then(([usersSnap, cvsSnap, templatesSnap]) => {
+      setState({
+        users: usersSnap.docs.map(d => d.data() as User),
+        cvs: cvsSnap.docs.map(d => ({ ...d.data(), cvId: d.id } as CV)),
+        templates: templatesSnap.docs.map(d => d.data() as Template),
       });
-    }
-  }, [isAdmin]);
+      setLoading(false);
+    });
+  }, []);
 
-  if (loading) return <AdminLoading />;
-  if (!isAdmin) return null;
+  const metrics = useMemo(() => {
+    const premiumUsers = state.users.filter(u => u.plan === 'premium').length;
+    const activeUsers = state.users.filter(u => u.isActive !== false).length;
+    const totalViews = state.cvs.reduce((sum, cv) => sum + (cv.viewCount || 0), 0);
+    const totalDownloads = state.cvs.reduce((sum, cv) => sum + (cv.downloadCount || 0), 0);
 
-  const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: BarChart3 },
-    { href: '/admin/users', label: 'Quản lý Users', icon: Users },
-    { href: '/admin/templates', label: 'Quản lý Templates', icon: Grid3X3 },
-    { href: '/admin/plans', label: 'Gói dịch vụ', icon: DollarSign },
-    { href: '/admin/stats', label: 'Thống kê', icon: TrendingUp },
-  ];
+    const templateUsageMap = state.cvs.reduce<Record<string, number>>((acc, cv) => {
+      const key = cv.templateId || 'unknown';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    const topTemplates = Object.entries(templateUsageMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([templateId, count]) => {
+        const meta = state.templates.find(t => t.templateId === templateId);
+        return { templateId, name: meta?.nameVi || meta?.name || templateId, count };
+      });
 
-  const statCards = [
-    { label: 'Tổng Users', value: stats.totalUsers, icon: Users, gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)', change: '+12 hôm nay' },
-    { label: 'Tổng CV', value: stats.totalCVs, icon: FileText, gradient: 'linear-gradient(135deg, #06b6d4, #6366f1)', change: '+5 hôm nay' },
-    { label: 'Premium Users', value: stats.premiumUsers, icon: DollarSign, gradient: 'linear-gradient(135deg, #f59e0b, #ec4899)', change: `${Math.round(stats.premiumUsers / Math.max(stats.totalUsers, 1) * 100)}% tổng` },
-    { label: 'Lượt xem CV', value: stats.totalViews, icon: Eye, gradient: 'linear-gradient(135deg, #10b981, #06b6d4)', change: 'Tổng cộng' },
-  ];
+    const recentUsers = [...state.users]
+      .sort((a, b) => toMillis(b.createdAt) - toMillis(a.createdAt))
+      .slice(0, 8);
+
+    return { premiumUsers, activeUsers, totalViews, totalDownloads, topTemplates, recentUsers };
+  }, [state]);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#060613' }}>
-      {/* Sidebar */}
-      <aside style={{
-        width: sidebarOpen ? '240px' : '0',
-        minHeight: '100vh',
-        background: 'linear-gradient(180deg, #0f0f1a, #0a0a15)',
-        borderRight: '1px solid rgba(99,102,241,0.15)',
-        display: 'flex', flexDirection: 'column',
-        transition: 'width 0.3s ease',
-        overflow: 'hidden',
-        flexShrink: 0,
-        position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
-      }}>
-        {/* Logo */}
-        <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(99,102,241,0.15)', whiteSpace: 'nowrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Shield size={18} color="white" />
-            </div>
-            <div>
-              <p style={{ fontWeight: 800, color: 'white', fontSize: '0.95rem' }}>CVFlow</p>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>Admin Panel</p>
-            </div>
+    <AdminShell title="Admin Dashboard" subtitle="Hệ thống vận hành CVFlow">
+      {loading ? (
+        <div className="skeleton" style={{ height: '240px', borderRadius: '16px' }} />
+      ) : (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', marginBottom: '16px' }}>
+            <StatCard title="Total Users" value={state.users.length} hint={`${metrics.activeUsers} active`} icon={<Users size={18} color="white" />} gradient="linear-gradient(135deg, #6366f1, #8b5cf6)" />
+            <StatCard title="Total CVs" value={state.cvs.length} hint="Documents created" icon={<FileText size={18} color="white" />} gradient="linear-gradient(135deg, #06b6d4, #3b82f6)" />
+            <StatCard title="Premium Users" value={metrics.premiumUsers} hint={`${Math.round((metrics.premiumUsers / Math.max(state.users.length, 1)) * 100)}% conversion`} icon={<Star size={18} color="white" />} gradient="linear-gradient(135deg, #f59e0b, #ef4444)" />
+            <StatCard title="Total Views" value={metrics.totalViews} hint={`${metrics.totalDownloads} downloads`} icon={<Eye size={18} color="white" />} gradient="linear-gradient(135deg, #10b981, #14b8a6)" />
           </div>
-        </div>
 
-        {/* Nav */}
-        <nav style={{ padding: '16px 12px', flex: 1, whiteSpace: 'nowrap' }}>
-          {navItems.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} style={{
-              display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '11px 12px', borderRadius: '10px',
-              textDecoration: 'none', marginBottom: '4px',
-              color: 'rgba(255,255,255,0.55)', fontWeight: 500, fontSize: '0.88rem',
-              transition: 'all 0.2s',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.15)'; (e.currentTarget as HTMLElement).style.color = 'white'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)'; }}
-            >
-              <Icon size={17} /> {label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Bottom */}
-        <div style={{ padding: '16px 12px', borderTop: '1px solid rgba(99,102,241,0.15)', whiteSpace: 'nowrap' }}>
-          {firebaseUser && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <img src={firebaseUser.photoURL || ''} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
-              <div style={{ overflow: 'hidden' }}>
-                <p style={{ color: 'white', fontSize: '0.82rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{firebaseUser.displayName}</p>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>Admin</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '14px', marginBottom: '16px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '14px', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(99,102,241,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ color: 'white', fontWeight: 700, fontSize: '0.96rem' }}>Users mới nhất</h3>
+                <Link href="/admin/users" style={{ color: '#818cf8', textDecoration: 'none', fontSize: '0.8rem' }}>
+                  Quản lý users
+                </Link>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                      {['Tên', 'Email', 'Plan', 'Trạng thái', 'Ngày tạo'].map(h => (
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: 'rgba(255,255,255,0.5)', fontSize: '0.73rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {metrics.recentUsers.map(u => (
+                      <tr key={u.uid} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '10px 12px', color: 'white', fontSize: '0.86rem' }}>{u.displayName || 'N/A'}</td>
+                        <td style={{ padding: '10px 12px', color: 'rgba(255,255,255,0.65)', fontSize: '0.82rem' }}>{u.email}</td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '9999px', background: u.plan === 'premium' ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.08)', color: u.plan === 'premium' ? '#f59e0b' : 'rgba(255,255,255,0.65)', fontWeight: 700 }}>
+                            {u.plan}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', color: u.isActive !== false ? '#34d399' : '#f87171', fontSize: '0.8rem', fontWeight: 600 }}>
+                          {u.isActive !== false ? 'Active' : 'Locked'}
+                        </td>
+                        <td style={{ padding: '10px 12px', color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>{toMillis(u.createdAt) ? new Date(toMillis(u.createdAt)).toLocaleDateString('vi-VN') : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-          )}
-          <button onClick={() => { signOut(); router.push('/'); }}
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: 'none', cursor: 'pointer', color: '#f87171', fontSize: '0.85rem', fontWeight: 600, width: '100%', whiteSpace: 'nowrap' }}>
-            <LogOut size={16} /> Đăng xuất
-          </button>
-        </div>
-      </aside>
 
-      {/* Main */}
-      <main style={{ flex: 1, paddingLeft: sidebarOpen ? '240px' : '0', transition: 'padding-left 0.3s ease' }}>
-        {/* Topbar */}
-        <div style={{
-          height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 28px', background: 'rgba(255,255,255,0.03)',
-          borderBottom: '1px solid rgba(99,102,241,0.1)',
-          backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 40,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', padding: '4px' }}>
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-            <h1 style={{ fontWeight: 700, fontSize: '1.1rem', color: 'white' }}>Admin Dashboard</h1>
-          </div>
-          <Link href="/" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.83rem', textDecoration: 'none' }}>← Về trang chính</Link>
-        </div>
-
-        {/* Content */}
-        <div style={{ padding: '32px 28px' }}>
-          {/* Stats Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-            {statCards.map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                style={{
-                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(99,102,241,0.15)',
-                  borderRadius: '16px', padding: '24px', backdropFilter: 'blur(20px)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: s.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(99,102,241,0.3)' }}>
-                    <s.icon size={22} color="white" />
-                  </div>
-                  <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>{s.change}</span>
-                </div>
-                <p style={{ fontWeight: 800, fontSize: '2rem', color: 'white', lineHeight: 1 }}>{s.value.toLocaleString()}</p>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.83rem', marginTop: '4px' }}>{s.label}</p>
-              </motion.div>
-            ))}
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '14px', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(99,102,241,0.15)' }}>
+                <h3 style={{ color: 'white', fontWeight: 700, fontSize: '0.96rem' }}>Top templates</h3>
+              </div>
+              <div style={{ padding: '12px' }}>
+                {metrics.topTemplates.length === 0 ? (
+                  <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.83rem' }}>Chưa có dữ liệu sử dụng template.</p>
+                ) : (
+                  metrics.topTemplates.map((item, index) => (
+                    <div key={item.templateId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 4px', borderBottom: index < metrics.topTemplates.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '8px', background: 'rgba(99,102,241,0.2)', color: '#a5b4fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.74rem', fontWeight: 700 }}>
+                          {index + 1}
+                        </div>
+                        <p style={{ color: 'white', fontSize: '0.84rem' }}>{item.name}</p>
+                      </div>
+                      <p style={{ color: '#93c5fd', fontWeight: 700, fontSize: '0.84rem' }}>{item.count}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Quick Links */}
-          <h2 style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', marginBottom: '16px' }}>Quản lý nhanh</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             {[
-              { href: '/admin/users', title: 'Quản lý Users', desc: 'Xem, khóa, phân quyền tài khoản', icon: Users, color: '#6366f1' },
-              { href: '/admin/templates', title: 'Quản lý Templates', desc: 'Thêm, sửa, xóa mẫu CV', icon: Grid3X3, color: '#ec4899' },
-              { href: '/admin/plans', title: 'Gói dịch vụ', desc: 'Quản lý Free/Premium plans', icon: DollarSign, color: '#f59e0b' },
-              { href: '/admin/stats', title: 'Thống kê chi tiết', desc: 'Charts, báo cáo doanh thu', icon: TrendingUp, color: '#10b981' },
-            ].map(({ href, title, desc, icon: Icon, color }) => (
-              <Link key={href} href={href} style={{
-                display: 'block', padding: '20px', borderRadius: '14px',
-                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(99,102,241,0.12)',
-                textDecoration: 'none', transition: 'all 0.25s',
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.1)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.3)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.12)'; }}
-              >
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: `${color}22`, border: `1px solid ${color}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                  <Icon size={20} color={color} />
+              { href: '/admin/users', title: 'Users', desc: 'Khoá/mở khoá, cấp quyền, đổi plan', icon: Users },
+              { href: '/admin/templates', title: 'Templates', desc: 'Bật/tắt template, seed template', icon: Grid3X3 },
+              { href: '/admin/plans', title: 'Plans', desc: 'Quản trị gói dịch vụ user', icon: Star },
+              { href: '/admin/stats', title: 'Detailed Stats', desc: 'Báo cáo tăng trưởng hệ thống', icon: BarChartIcon },
+            ].map(item => (
+              <Link key={item.href} href={item.href} style={{ display: 'block', padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(99,102,241,0.15)', textDecoration: 'none' }}>
+                <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: 'rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
+                  <item.icon size={16} color="#a5b4fc" />
                 </div>
-                <p style={{ fontWeight: 700, color: 'white', marginBottom: '4px', fontSize: '0.92rem' }}>{title}</p>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>{desc}</p>
+                <p style={{ color: 'white', fontWeight: 700, marginBottom: '4px', fontSize: '0.9rem' }}>{item.title}</p>
+                <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>{item.desc}</p>
               </Link>
             ))}
           </div>
-        </div>
-      </main>
+        </>
+      )}
+    </AdminShell>
+  );
+}
+
+function StatCard({ title, value, hint, icon, gradient }: { title: string; value: number; hint: string; icon: React.ReactNode; gradient: string }) {
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '14px', padding: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <div style={{ width: '38px', height: '38px', borderRadius: '11px', background: gradient, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
+        <span style={{ color: 'rgba(255,255,255,0.48)', fontSize: '0.75rem' }}>{hint}</span>
+      </div>
+      <p style={{ color: 'white', fontSize: '1.6rem', fontWeight: 800, lineHeight: 1.1 }}>{value.toLocaleString()}</p>
+      <p style={{ color: 'rgba(255,255,255,0.55)', marginTop: '4px', fontSize: '0.82rem' }}>{title}</p>
     </div>
   );
 }
 
-function AdminLoading() {
+function BarChartIcon({ size = 18, color = 'white' }: { size?: number; color?: string }) {
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#060613' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div className="skeleton" style={{ width: '48px', height: '48px', borderRadius: '50%', margin: '0 auto 16px', background: 'rgba(99,102,241,0.2)' }} />
-        <p style={{ color: 'rgba(255,255,255,0.4)' }}>Đang xác thực quyền admin...</p>
-      </div>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M4 20V11M10 20V4M16 20V8M22 20V13" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </svg>
   );
 }
+

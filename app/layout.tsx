@@ -1,13 +1,20 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { Plus_Jakarta_Sans, Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/hooks/useAuth';
 import { Toaster } from 'react-hot-toast';
 
 const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
+  subsets: ['latin', 'vietnamese'],
   weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-jakarta',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-inter',
   display: 'swap',
 });
 
@@ -27,7 +34,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={plusJakarta.variable}>
+      <body className={`${plusJakarta.variable} ${inter.variable} ${plusJakarta.className}`}>
         <AuthProvider>
           {children}
           <Toaster
@@ -41,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 borderRadius: '12px',
                 backdropFilter: 'blur(12px)',
                 boxShadow: 'var(--shadow-lg)',
-                fontFamily: 'var(--font-jakarta)',
+                fontFamily: 'var(--font-jakarta), var(--font-inter), system-ui, sans-serif',
               },
             }}
           />

@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, User, LayoutDashboard, Grid3X3, DollarSign,
-  LogOut, Menu, X, ChevronDown, Sun, Moon, Settings, Shield
+  LogOut, Menu, X, ChevronDown, Sun, Moon, Settings, Shield, Users
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { signOut } from '@/lib/auth';
@@ -47,9 +47,11 @@ export default function Navbar() {
     setProfileOpen(false);
   };
 
-  const navLinks = [
-    { href: '/templates', label: 'Mẫu CV', icon: Grid3X3 },
-    { href: '/pricing', label: 'Bảng Giá', icon: DollarSign },
+      const navLinks = [
+    { href: '/templates', label: 'Templates', icon: Grid3X3 },
+    { href: '/community', label: 'Community', icon: Users },
+    { href: '/pricing', label: 'Pricing', icon: DollarSign },
+    { href: '/support', label: 'Support', icon: Shield },
   ];
 
   const isActive = (href: string) => pathname === href;
@@ -340,3 +342,6 @@ export default function Navbar() {
     </header>
   );
 }
+
+
+
