@@ -10,7 +10,12 @@ function readEnv(name: string) {
 function getPrivateKey() {
   const key = readEnv('FIREBASE_PRIVATE_KEY');
   if (!key) return '';
-  return key.replace(/^"(.*)"$/s, '$1').replace(/\\n/g, '\n').trim();
+  const unwrappedKey =
+    key.startsWith('"') && key.endsWith('"')
+      ? key.slice(1, -1)
+      : key;
+
+  return unwrappedKey.replace(/\\n/g, '\n').trim();
 }
 
 function getAdminApp(): App {
