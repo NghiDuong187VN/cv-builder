@@ -5,9 +5,9 @@ import FeatureComparison from '@/components/home/FeatureComparison';
 import BeforeAfterShowcase from '@/components/home/BeforeAfterShowcase';
 
 export const metadata = {
-  title: 'Bảng Giá | CVFlow',
+  title: 'Bảng giá | CVFlow',
   description:
-    'Chọn gói phù hợp. Bắt đầu miễn phí, nâng cấp khi cần. Premium mở khóa ATS Optimizer, cover letter AI và viết lại kinh nghiệm bằng Gemini.',
+    'Chọn gói phù hợp giữa Free Forever, mua lượt tạo CV Premium và Premium theo tháng. CVFlow giúp bạn tạo CV chuyên nghiệp, tối ưu ATS và cover letter bằng AI.',
 };
 
 export default function PricingPage() {
@@ -19,7 +19,7 @@ export default function PricingPage() {
           style={{
             textAlign: 'center',
             padding: '72px 24px 56px',
-            background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 72%)',
             borderBottom: '1px solid var(--border)',
           }}
         >
@@ -35,8 +35,8 @@ export default function PricingPage() {
               marginBottom: '20px',
             }}
           >
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--primary)' }}>
-              Bảng Giá Dịch Vụ
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary)' }}>
+              Bảng giá dịch vụ
             </span>
           </div>
           <h1
@@ -47,7 +47,7 @@ export default function PricingPage() {
               lineHeight: 1.15,
             }}
           >
-            Bản CV ấn tượng là bước đầu tiên
+            Bắt đầu miễn phí,
             <br />
             <span
               style={{
@@ -57,25 +57,26 @@ export default function PricingPage() {
                 backgroundClip: 'text',
               }}
             >
-              để chinh phục nhà tuyển dụng.
+              nâng cấp khi bạn thật sự cần.
             </span>
           </h1>
           <p
             style={{
               color: 'var(--text-secondary)',
-              maxWidth: '700px',
+              maxWidth: '760px',
               margin: '0 auto',
               fontSize: '1.05rem',
-              lineHeight: 1.7,
+              lineHeight: 1.75,
             }}
           >
-            Bắt đầu với Gói Miễn Phí để trải nghiệm ứng dụng ngay hôm nay. Nâng cấp Premium để mở khoá sức mạnh AI: tự động cải thiện nội dung, phân tích chuẩn ATS theo JD và tạo Cover Letter chuyên nghiệp.
+            CVFlow chia pricing thành 3 hướng rất rõ: <strong>Free Forever</strong> để bắt đầu,{' '}
+            <strong>Mua lượt tạo CV Premium</strong> khi chỉ cần 1-2 CV cao cấp, và <strong>Premium</strong> khi bạn muốn tối ưu nhiều hồ sơ, ATS review và cover letter trong suốt quá trình ứng tuyển.
           </p>
         </div>
 
         <PricingSection />
-        <BeforeAfterShowcase />
         <FeatureComparison />
+        <BeforeAfterShowcase />
         <FaqSection />
       </div>
       <Footer />
@@ -86,28 +87,28 @@ export default function PricingPage() {
 function FaqSection() {
   const faqs = [
     {
-      q: 'Gói miễn phí có đủ để xin việc không?',
-      a: 'Hoàn toàn đủ. Bạn có quyền truy cập các mẫu CV miễn phí, xuất file PDF chất lượng cao, chia sẻ link trực tuyến và sử dụng AI hỗ trợ viết tóm tắt cơ bản (3 lần/ngày). Gói Premium dành cho giai đoạn bạn cần tối ưu chuyên sâu hơn.',
+      q: 'Free có đủ để bắt đầu xin việc không?',
+      a: 'Có. Gói Free phù hợp để bạn tạo và lưu tối đa 3 CV, dùng mẫu cơ bản, xuất PDF cơ bản, chia sẻ link CV và thử AI tạo phần tóm tắt cơ bản 3 lượt mỗi ngày.',
     },
     {
-      q: 'Tính năng Premium giúp ích gì cho tôi?',
-      a: 'Premium mang lại lợi thế cạnh tranh lớn: AI tư vấn viết lại từng mục kinh nghiệm, chấm điểm ATS so với mô tả công việc (JD), gợi ý từ khoá và tính năng tự động tạo Cover Letter cá nhân hoá cho từng công ty.',
+      q: 'Mua lượt tạo CV Premium phù hợp khi nào?',
+      a: 'Khi bạn chỉ cần tạo hoặc xuất 1-2 CV Premium hoàn chỉnh mà chưa muốn đăng ký gói Premium theo tháng. Quy đổi rất rõ: 1.000đ = 1 lượt.',
     },
     {
-      q: 'Tính năng AI hoạt động như thế nào?',
-      a: 'Hệ thống tích hợp Gemini AI từ Google. Dựa vào mục tiêu nghề nghiệp, kỹ năng và JD bạn cung cấp, AI sẽ phân tích và đề xuất cách hành văn chuyên nghiệp nhất để làm nổi bật trình độ của bạn.',
+      q: 'Premium khác gì so với Free?',
+      a: 'Premium mở khóa toàn bộ mẫu CV cao cấp, không giới hạn số CV, AI viết lại kinh nghiệm theo vị trí, ATS Review theo JD, tạo cover letter theo target job/company/JD và lưu cover letter vào tài khoản.',
     },
     {
-      q: 'Trình tối ưu ATS (ATS Optimizer) trả về kết quả gì?',
-      a: 'Bạn sẽ nhận được điểm tương thích ATS (%), phân tích điểm mạnh, điểm yếu, các từ khoá còn thiếu so với JD, và các gợi ý cải thiện cụ thể để đảm bảo CV vượt qua vòng lọc tự động của nhà tuyển dụng.',
+      q: 'Nếu chưa có cổng thanh toán tự động thì sao?',
+      a: 'Khi bạn bấm mua gói hoặc mua lượt, CVFlow sẽ mở modal thanh toán thủ công. Modal sẽ hiển thị tên gói, số tiền, nội dung chuyển khoản gợi ý và hướng dẫn gửi ảnh xác nhận qua email hỗ trợ.',
     },
     {
-      q: 'Tôi có thể lưu lại Cover Letter không?',
-      a: 'Có. Mọi Cover Letter bạn tạo và chỉnh sửa đều được lưu trữ an toàn trong tài khoản của bạn để dễ dàng tái sử dụng cho các lần ứng tuyển tiếp theo.',
+      q: 'Tôi chưa đăng nhập thì có mua được không?',
+      a: 'Chưa. Nếu bạn chưa đăng nhập, nút CTA sẽ đưa bạn về trang đăng nhập trước để đảm bảo gói hoặc lượt được gắn đúng vào tài khoản.',
     },
     {
-      q: 'Tôi có thể dùng thử trước khi mua không?',
-      a: 'Gói Free hiện đang mở tính năng AI cho phần tóm tắt (3 lượt/ngày). Bạn hãy trải nghiệm thử độ thông minh của AI trước khi quyết định nâng cấp Premium nhé.',
+      q: 'Nên chọn gói Premium nào là hợp lý nhất?',
+      a: 'Nếu bạn đang tìm việc tích cực, gói 3 tháng là lựa chọn cân bằng nhất. Nếu muốn tiết kiệm lâu dài, gói 1 năm có chi phí trung bình theo tháng thấp nhất.',
     },
   ];
 
@@ -116,10 +117,10 @@ function FaqSection() {
       <div className="container" style={{ maxWidth: '760px' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, marginBottom: '12px' }}>
-            Câu hỏi thường gặp (FAQ)
+            Câu hỏi thường gặp
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-            Giải đáp mọi thắc mắc của bạn về sản phẩm và lộ trình nâng cấp gói cước.
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.7 }}>
+            Những điều quan trọng nhất để bạn chọn đúng gói và hiểu rõ cách thanh toán hiện tại của CVFlow.
           </p>
         </div>
 

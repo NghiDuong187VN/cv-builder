@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import { FileText, Heart, Mail, MessageSquare } from 'lucide-react';
+import { FileText, Mail, MessageSquare } from 'lucide-react';
 import { LIVE_CHAT_CONFIG, SUPPORT_INFO } from '@/lib/creator';
 
 export default function Footer() {
@@ -233,12 +233,9 @@ export default function Footer() {
             style={{
               color: 'var(--text-muted)',
               fontSize: '0.83rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
             }}
           >
-            Made with <Heart size={14} color="#ec4899" fill="#ec4899" /> for people who dream big
+            Được xây dựng để giúp người Việt tạo CV chuyên nghiệp hơn.
           </p>
           <a href={`mailto:${SUPPORT_INFO.email}`} className="btn btn-primary btn-sm">
             Liên hệ hỗ trợ

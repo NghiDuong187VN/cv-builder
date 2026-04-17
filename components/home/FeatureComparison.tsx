@@ -1,10 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Crown, Minus, Zap } from 'lucide-react';
+import { Check, Crown, Minus, Wallet } from 'lucide-react';
 import Link from 'next/link';
 
-type CellValue = boolean | string | 'limited';
+type CellValue = boolean | string;
 
 interface CompareRow {
   label: string;
@@ -15,131 +15,69 @@ interface CompareRow {
 
 interface CompareGroup {
   title: string;
-  icon: string;
   rows: CompareRow[];
 }
 
-const COMPARE_GROUPS: CompareGroup[] = [
+const compareGroups: CompareGroup[] = [
   {
     title: 'Tạo và lưu CV',
-    icon: 'CV',
     rows: [
-      { label: 'Số CV có thể tạo', free: 'Tối đa 3', premium: 'Không giới hạn' },
+      { label: 'Số CV có thể tạo', free: 'Tối đa 3 CV', premium: 'Không giới hạn' },
       { label: 'Mẫu CV cơ bản', free: true, premium: true },
-      { label: 'Mẫu cao cấp theo ngành', free: false, premium: true, highlight: true },
-      { label: 'Lưu tự động', free: true, premium: true },
-      { label: 'Tùy chỉnh sâu hơn cho nhiều vị trí', free: false, premium: true },
+      { label: 'Toàn bộ mẫu CV cao cấp', free: false, premium: true, highlight: true },
+      { label: 'Xuất PDF', free: 'Cơ bản', premium: 'Premium, sạch hơn', highlight: true },
+      { label: 'Chia sẻ link CV', free: true, premium: true },
     ],
   },
   {
     title: 'AI và tối ưu ứng tuyển',
-    icon: 'AI',
     rows: [
-      { label: 'Gemini tạo phần tóm tắt cơ bản', free: '3 lượt/ngày', premium: true, highlight: true },
-      { label: 'AI viết lại từng mục kinh nghiệm', free: false, premium: true, highlight: true },
-      { label: 'ATS review: điểm số, thiếu sót và từ khóa', free: false, premium: true, highlight: true },
-      { label: 'AI tạo cover letter theo JD', free: false, premium: true, highlight: true },
-      { label: 'Nhập target job, company, job description trong editor', free: true, premium: true },
-    ],
-  },
-  {
-    title: 'Xuất bản và chia sẻ',
-    icon: 'PDF',
-    rows: [
-      { label: 'Xuất PDF', free: true, premium: true },
-      { label: 'Link chia sẻ CV công khai', free: true, premium: true },
-      { label: 'Bản CV sạch hơn để ứng tuyển nghiêm túc', free: 'Cơ bản', premium: true },
+      { label: 'AI tạo tóm tắt cơ bản', free: '3 lượt/ngày', premium: 'Không giới hạn theo gói', highlight: true },
+      { label: 'AI viết lại kinh nghiệm theo vị trí', free: false, premium: true, highlight: true },
+      { label: 'ATS Review theo JD', free: false, premium: true, highlight: true },
+      { label: 'AI tạo cover letter theo target job/company/JD', free: false, premium: true, highlight: true },
+      { label: 'Lưu cover letter vào tài khoản', free: false, premium: true },
+      { label: 'Tối ưu CV cho nhiều vị trí khác nhau', free: false, premium: true },
     ],
   },
 ];
 
-function CellIcon({ value }: { value: CellValue }) {
+function Cell({ value }: { value: CellValue }) {
   if (value === true) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Check size={13} color="#10b981" strokeWidth={3} />
-        </div>
+      <div className="cell-icon success">
+        <Check size={14} strokeWidth={3} />
       </div>
     );
   }
 
   if (value === false) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <Minus size={16} color="var(--text-muted)" />
+      <div className="cell-icon muted">
+        <Minus size={14} strokeWidth={3} />
       </div>
     );
   }
 
-  if (value === 'limited') {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: '9999px', border: '1px solid rgba(245,158,11,0.2)' }}>Giới hạn</span>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', textAlign: 'center' }}>{value}</span>
-    </div>
-  );
+  return <span className="cell-text">{value}</span>;
 }
-
-const PLANS = [
-  {
-    name: 'Free',
-    gradient: 'linear-gradient(135deg, #06b6d4, #6366f1)',
-    icon: Zap,
-    price: '0đ',
-    period: 'mãi mãi',
-    cta: 'Bắt đầu',
-    href: '/auth',
-    ctaBg: 'linear-gradient(135deg, #06b6d4, #6366f1)',
-  },
-  {
-    name: 'Premium',
-    gradient: 'linear-gradient(135deg, #f59e0b, #ec4899)',
-    icon: Crown,
-    price: '79.000đ',
-    period: '/tháng',
-    cta: 'Nâng cấp',
-    href: '/pricing',
-    ctaBg: 'linear-gradient(135deg, #f59e0b, #ec4899)',
-    popular: true,
-  },
-];
 
 export default function FeatureComparison() {
   return (
     <section className="section" style={{ background: 'rgba(99,102,241,0.02)' }}>
       <div className="container">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          style={{ textAlign: 'center', marginBottom: '48px' }}
+          style={{ textAlign: 'center', marginBottom: '40px' }}
         >
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 16px',
-              borderRadius: '9999px',
-              background: 'rgba(99,102,241,0.1)',
-              border: '1px solid rgba(99,102,241,0.2)',
-              marginBottom: '16px',
-            }}
-          >
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--primary)' }}>So sánh thực tế</span>
-          </div>
+          <div className="comparison-eyebrow">So sánh Free và Premium</div>
           <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 800, marginBottom: '12px' }}>
-            Gói nào <span className="gradient-text">bán được</span> nhất?
+            Khác biệt nằm ở <span className="gradient-text">mức độ tối ưu hồ sơ</span>
           </h2>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto', fontSize: '1rem' }}>
-            Bảng này chỉ giữ những gì đang có thật trong sản phẩm để người dùng thấy rõ giá trị nâng cấp.
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto', lineHeight: 1.75 }}>
+            Free đủ để bắt đầu. Premium phù hợp khi bạn muốn tạo nhiều CV, tối ưu theo từng vị trí và tận dụng AI để tăng tốc ứng tuyển.
           </p>
         </motion.div>
 
@@ -147,149 +85,241 @@ export default function FeatureComparison() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border)',
-            borderRadius: '24px',
-            overflow: 'hidden',
-            backdropFilter: 'blur(12px)',
-            boxShadow: 'var(--shadow-xl)',
-          }}
+          className="comparison-shell"
         >
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr repeat(2, 180px)',
-              background: 'rgba(99,102,241,0.04)',
-              borderBottom: '1px solid var(--border)',
-            }}
-          >
-            <div style={{ padding: '24px 28px' }}>
-              <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Tính năng</p>
-            </div>
-            {PLANS.map((plan) => (
-              <div
-                key={plan.name}
-                style={{
-                  padding: '20px 16px',
-                  textAlign: 'center',
-                  borderLeft: '1px solid var(--border)',
-                  background: plan.popular ? 'rgba(245,158,11,0.05)' : 'transparent',
-                  position: 'relative',
-                }}
-              >
-                {plan.popular && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      padding: '2px 14px',
-                      background: 'linear-gradient(135deg, #f59e0b, #ec4899)',
-                      borderRadius: '9999px',
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                      color: 'white',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    Bán chạy nhất
-                  </div>
-                )}
-                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: plan.gradient, margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <plan.icon size={18} color="white" />
-                </div>
-                <p style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '4px' }}>{plan.name}</p>
-                <p style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>
-                  {plan.price}
-                  <span style={{ fontSize: '0.72rem', fontWeight: 500, color: 'var(--text-muted)' }}> {plan.period}</span>
-                </p>
-              </div>
-            ))}
+          <div className="comparison-note">
+            Cần 1-2 CV Premium? Bạn có thể dùng mục <strong>Mua lượt tạo CV Premium</strong> ở phía trên thay vì đăng ký gói tháng.
           </div>
 
-          {COMPARE_GROUPS.map((group, groupIndex) => (
-            <div key={group.title}>
-              <div
-                style={{
-                  padding: '14px 28px',
-                  background: 'rgba(99,102,241,0.04)',
-                  borderTop: groupIndex > 0 ? '1px solid var(--border)' : 'none',
-                  borderBottom: '1px solid var(--border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--primary)' }}>{group.icon}</span>
-                <p style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{group.title}</p>
+          <div className="comparison-scroll">
+            <div className="comparison-table">
+              <div className="comparison-header comparison-grid">
+                <div className="feature-col">
+                  <span className="header-label">Tính năng</span>
+                </div>
+                <div className="plan-col">
+                  <div className="plan-chip free-chip">
+                    <Wallet size={16} />
+                    <span>Free</span>
+                  </div>
+                  <strong>0đ mãi mãi</strong>
+                </div>
+                <div className="plan-col plan-col-premium">
+                  <div className="plan-chip premium-chip">
+                    <Crown size={16} />
+                    <span>Premium</span>
+                  </div>
+                  <strong>Từ 49.000đ</strong>
+                </div>
               </div>
 
-              {group.rows.map((row, rowIndex) => (
-                <div
-                  key={row.label}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr repeat(2, 180px)',
-                    borderBottom: rowIndex < group.rows.length - 1 ? '1px solid var(--border)' : 'none',
-                    background: row.highlight ? 'rgba(245,158,11,0.03)' : 'transparent',
-                  }}
-                >
-                  <div style={{ padding: '13px 28px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {row.highlight && (
-                      <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '1px 7px', borderRadius: '9999px', background: 'rgba(245,158,11,0.12)', color: '#d97706', border: '1px solid rgba(245,158,11,0.2)' }}>
-                        HOT
-                      </span>
-                    )}
-                    <span style={{ fontSize: '0.87rem', color: 'var(--text-secondary)' }}>{row.label}</span>
-                  </div>
-                  <div style={{ padding: '13px 16px', borderLeft: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <CellIcon value={row.free} />
-                  </div>
-                  <div style={{ padding: '13px 16px', borderLeft: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245,158,11,0.03)' }}>
-                    <CellIcon value={row.premium} />
-                  </div>
+              {compareGroups.map(group => (
+                <div key={group.title}>
+                  <div className="group-title">{group.title}</div>
+                  {group.rows.map(row => (
+                    <div key={row.label} className={`comparison-grid comparison-row ${row.highlight ? 'comparison-row-highlight' : ''}`}>
+                      <div className="feature-col feature-label">{row.label}</div>
+                      <div className="plan-col"><Cell value={row.free} /></div>
+                      <div className="plan-col plan-col-premium"><Cell value={row.premium} /></div>
+                    </div>
+                  ))}
                 </div>
               ))}
-            </div>
-          ))}
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr repeat(2, 180px)',
-              borderTop: '1px solid var(--border)',
-              background: 'rgba(99,102,241,0.04)',
-            }}
-          >
-            <div style={{ padding: '20px 28px' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Bắt đầu ngay hôm nay.</p>
-            </div>
-            {PLANS.map((plan) => (
-              <div key={plan.name} style={{ padding: '16px 12px', borderLeft: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Link
-                  href={plan.href}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    padding: '9px 0',
-                    background: plan.ctaBg,
-                    color: 'white',
-                    borderRadius: '10px',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    textDecoration: 'none',
-                    textAlign: 'center',
-                  }}
-                >
-                  {plan.cta}
-                </Link>
+              <div className="comparison-grid comparison-footer">
+                <div className="feature-col footer-copy">Chọn gói theo đúng nhịp ứng tuyển của bạn.</div>
+                <div className="plan-col">
+                  <Link href="/auth" className="table-cta table-cta-free">Bắt đầu miễn phí</Link>
+                </div>
+                <div className="plan-col plan-col-premium">
+                  <Link href="#premium-plans" className="table-cta table-cta-premium">Xem gói Premium</Link>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </motion.div>
       </div>
+
+      <style jsx>{`
+        .comparison-eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 16px;
+          border-radius: 999px;
+          background: rgba(99, 102, 241, 0.08);
+          border: 1px solid rgba(99, 102, 241, 0.18);
+          color: var(--primary);
+          font-size: 0.82rem;
+          font-weight: 700;
+          margin-bottom: 16px;
+        }
+
+        .comparison-shell {
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: 24px;
+          overflow: hidden;
+          box-shadow: var(--shadow-xl);
+        }
+
+        .comparison-note {
+          padding: 16px 20px;
+          background: rgba(245, 158, 11, 0.08);
+          border-bottom: 1px solid rgba(245, 158, 11, 0.16);
+          color: var(--text-secondary);
+          line-height: 1.7;
+        }
+
+        .comparison-scroll {
+          overflow-x: auto;
+        }
+
+        .comparison-table {
+          min-width: 760px;
+        }
+
+        .comparison-grid {
+          display: grid;
+          grid-template-columns: minmax(280px, 1fr) 180px 220px;
+        }
+
+        .comparison-header {
+          background: rgba(99, 102, 241, 0.04);
+          border-bottom: 1px solid var(--border);
+        }
+
+        .feature-col,
+        .plan-col {
+          padding: 18px 22px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+
+        .feature-col {
+          justify-content: flex-start;
+          text-align: left;
+        }
+
+        .plan-col {
+          border-left: 1px solid var(--border);
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .plan-col-premium {
+          background: rgba(99, 102, 241, 0.03);
+        }
+
+        .header-label {
+          font-size: 0.84rem;
+          font-weight: 700;
+          color: var(--text-muted);
+        }
+
+        .plan-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          border-radius: 999px;
+          font-size: 0.82rem;
+          font-weight: 700;
+        }
+
+        .free-chip {
+          background: rgba(16, 185, 129, 0.12);
+          color: #059669;
+        }
+
+        .premium-chip {
+          background: linear-gradient(135deg, #f59e0b, #ec4899);
+          color: white;
+        }
+
+        .group-title {
+          padding: 12px 22px;
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+          background: rgba(99, 102, 241, 0.04);
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: var(--text-primary);
+        }
+
+        .comparison-row {
+          border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-row-highlight {
+          background: rgba(245, 158, 11, 0.04);
+        }
+
+        .feature-label {
+          font-size: 0.9rem;
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+        .cell-icon {
+          width: 24px;
+          height: 24px;
+          border-radius: 999px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .cell-icon.success {
+          background: rgba(16, 185, 129, 0.12);
+          color: #10b981;
+        }
+
+        .cell-icon.muted {
+          background: rgba(148, 163, 184, 0.12);
+          color: var(--text-muted);
+        }
+
+        .cell-text {
+          font-size: 0.86rem;
+          line-height: 1.5;
+          color: var(--text-secondary);
+          font-weight: 600;
+        }
+
+        .comparison-footer {
+          background: rgba(99, 102, 241, 0.04);
+        }
+
+        .footer-copy {
+          font-size: 0.88rem;
+          color: var(--text-muted);
+        }
+
+        .table-cta {
+          width: 100%;
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          text-decoration: none;
+          font-weight: 700;
+          font-size: 0.84rem;
+          padding: 11px 14px;
+          border-radius: 12px;
+        }
+
+        .table-cta-free {
+          background: rgba(16, 185, 129, 0.12);
+          color: #059669;
+        }
+
+        .table-cta-premium {
+          background: linear-gradient(135deg, #f59e0b, #ec4899);
+          color: white;
+        }
+      `}</style>
     </section>
   );
 }
