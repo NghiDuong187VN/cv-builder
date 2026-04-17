@@ -189,7 +189,8 @@ export const FEATURE_COSTS = {
 export function isPremium(user: Partial<User> | null): boolean {
   if (!user) return false;
 
-  const expiry = user.premiumUntil || user.planExpiry;
+  const legacyUser = user as Partial<User> & { premiumUntil?: unknown; planExpiry?: unknown };
+  const expiry = legacyUser.premiumUntil || legacyUser.planExpiry;
   if (expiry) {
     const expiryDate =
       expiry instanceof Date
