@@ -48,10 +48,10 @@ export default function Navbar() {
   };
 
       const navLinks = [
-    { href: '/templates', label: 'Templates', icon: Grid3X3 },
-    { href: '/community', label: 'Community', icon: Users },
-    { href: '/pricing', label: 'Pricing', icon: DollarSign },
-    { href: '/support', label: 'Support', icon: Shield },
+    { href: '/templates', label: 'Kho mẫu CV', icon: Grid3X3 },
+    { href: '/community', label: 'Cộng đồng CV', icon: Users },
+    { href: '/pricing', label: 'Gói dịch vụ', icon: DollarSign },
+    { href: '/support', label: 'Trợ giúp', icon: Shield },
   ];
 
   const isActive = (href: string) => pathname === href;
