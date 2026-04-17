@@ -207,7 +207,8 @@ export function isPremium(user: Partial<User> | null): boolean {
 
 export function hasEnoughCredits(user: Partial<User> | null, requiredCredits: number): boolean {
   if (!user) return false;
-  return (user.credits || 0) >= requiredCredits;
+  const legacyUser = user as Partial<User> & { credits?: number };
+  return (legacyUser.credits || 0) >= requiredCredits;
 }
 
 export function canUsePremiumTemplate(user: Partial<User> | null): boolean {
