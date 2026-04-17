@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Sparkles, Play } from 'lucide-react';
+import { ArrowRight, Sparkles, LayoutTemplate, Zap, Download } from 'lucide-react';
 
 export default function HeroSection() {
   return (
@@ -55,7 +55,7 @@ export default function HeroSection() {
         >
           <Sparkles size={14} color="white" />
           <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600 }}>
-            🎉 Miễn phí 100% – Không cần thẻ tín dụng
+            🎉 Nền tảng tạo CV với AI thế hệ mới
           </span>
         </motion.div>
 
@@ -81,7 +81,7 @@ export default function HeroSection() {
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
           }}>
-            Đẹp
+            Nhanh Chóng
           </span>
           ,<br />
           Sẵn Sàng{' '}
@@ -111,8 +111,7 @@ export default function HeroSection() {
             lineHeight: 1.7,
           }}
         >
-          Nền tảng tạo CV &amp; Profile online <strong style={{ color: 'white' }}>cá nhân hóa mạnh nhất</strong> cho học sinh, sinh viên và người đi làm.
-          Tạo trong <strong style={{ color: '#fde68a' }}>5 phút</strong>, chia sẻ ngay.
+          Trải nghiệm giao diện cực kỳ <strong style={{ color: 'white' }}>dễ dùng</strong>, viết nội dung mượt mà nhờ hệ thống <strong style={{ color: '#fde68a' }}>AI thông minh</strong> hỗ trợ, và <strong style={{ color: 'white' }}>xuất file PDF trực tiếp</strong> chỉ trong 5 phút.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -153,7 +152,7 @@ export default function HeroSection() {
             }}
           >
             <Sparkles size={18} />
-            Tạo CV Ngay – Miễn Phí
+            Tạo CV miễn phí
             <ArrowRight size={18} />
           </Link>
 
@@ -183,32 +182,34 @@ export default function HeroSection() {
               (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
             }}
           >
-            <Play size={18} fill="white" />
-            Khám Phá Mẫu CV
+            <LayoutTemplate size={18} fill="currentColor" opacity={0.8} />
+            Xem mẫu CV
           </Link>
         </motion.div>
 
-        {/* Stats */}
+        {/* Features highlight instead of fake stats */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.7 }}
           style={{
             display: 'flex',
-            gap: '48px',
+            gap: '32px',
             justifyContent: 'center',
             marginTop: '56px',
             flexWrap: 'wrap',
           }}
         >
           {[
-            { value: '15K+', label: 'CV đã tạo' },
-            { value: '65+', label: 'Mẫu CV đẹp' },
-            { value: '4.95⭐', label: 'Đánh giá' },
-          ].map(({ value, label }) => (
-            <div key={label} style={{ textAlign: 'center' }}>
-              <p style={{ fontWeight: 800, fontSize: '1.8rem', color: 'white', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>{value}</p>
-              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', marginTop: '2px' }}>{label}</p>
+            { icon: LayoutTemplate, label: 'Đa dạng mẫu thiết kế Miễn Phí & Premium' },
+            { icon: Zap, label: 'Trí tuệ nhân tạo (AI) căn chỉnh từng kỹ năng' },
+            { icon: Download, label: 'Tải File PDF & Chia sẻ online tức thì' },
+          ].map(({ icon: Icon, label }, idx) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={16} color="white" />
+              </div>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: 600 }}>{label}</p>
             </div>
           ))}
         </motion.div>

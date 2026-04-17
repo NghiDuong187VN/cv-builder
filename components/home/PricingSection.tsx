@@ -32,40 +32,40 @@ const plans: Plan[] = [
   {
     id: 'free',
     name: 'Miễn phí',
-    nameEn: 'Free Forever',
+    nameEn: 'Trải Nghiệm Trọn Đời',
     price: '0đ',
     period: 'mãi mãi',
     icon: Zap,
     gradient: 'linear-gradient(135deg, #06b6d4, #6366f1)',
-    forWho: 'Người cần tạo CV đẹp, dùng nhanh và chưa cần tối ưu sâu cho từng vị trí.',
+    forWho: 'Phù hợp với học sinh, sinh viên cần tạo CV nhanh và có ngay file mượt mà.',
     features: [
-      { text: 'Tạo và lưu tối đa 3 CV' },
-      { text: 'Thư viện mẫu CV cơ bản' },
-      { text: 'Xuất PDF và chia sẻ link CV' },
+      { text: 'Tạo và lưu trữ tối đa 3 CV' },
+      { text: 'Sử dụng các mẫu CV tiêu chuẩn' },
+      { text: 'Xuất PDF và chia sẻ link trực tuyến' },
       { text: 'Hỗ trợ song ngữ Việt / Anh' },
-      { text: 'Gemini tạo phần tóm tắt cơ bản: 3 lượt mỗi ngày', highlight: true },
+      { text: 'AI hỗ trợ viết phần Tóm tắt: 3 lượt/ngày', highlight: true },
     ],
-    cta: 'Bắt đầu miễn phí',
+    cta: 'Tạo CV miễn phí',
     ctaBg: 'linear-gradient(135deg, #06b6d4, #6366f1)',
-    href: '/auth',
+    href: '/cv/new',
   },
   {
     id: 'premium',
     name: 'Premium',
-    nameEn: 'Dành cho ứng tuyển nghiêm túc',
+    nameEn: 'Dành Cho Ứng Tuyển Chuyên Nghiệp',
     price: '79.000đ',
     period: '/tháng',
     badge: 'Phổ biến nhất',
     icon: Crown,
     gradient: 'linear-gradient(135deg, #f59e0b, #ec4899, #8b5cf6)',
-    forWho: 'Người đang ứng tuyển nhiều vị trí và muốn AI hỗ trợ tối ưu nội dung để tăng tỷ lệ qua vòng.',
+    forWho: 'Người đi làm và ứng viên muốn dùng sức mạnh AI để vượt qua vòng lọc CV khắt khe nhất.',
     features: [
-      { text: 'Không giới hạn số CV và mở khóa toàn bộ mẫu cao cấp', highlight: true },
-      { text: 'Gemini viết lại từng mục kinh nghiệm để thuyết phục hơn', highlight: true },
-      { text: 'ATS Optimizer: chấm điểm, phát hiện thiếu sót, từ khóa còn thiếu và gợi ý cải thiện', highlight: true },
-      { text: 'AI tạo cover letter theo vị trí ứng tuyển và JD', highlight: true },
-      { text: 'Nhập target job, target company và job description ngay trong editor' },
-      { text: 'Xuất PDF sạch, CV đẹp hơn và tối ưu cho ứng tuyển nghiêm túc' },
+      { text: 'Không giới hạn CV & truy cập mọi mẫu Premium', highlight: true },
+      { text: 'AI tư vấn & viết lại kinh nghiệm chuẩn hoá JD', highlight: true },
+      { text: 'Phân tích ATS: chấm điểm tương thích & gợi ý từ khoá', highlight: true },
+      { text: 'Tạo Cover Letter tự động theo vị trí ứng tuyển', highlight: true },
+      { text: 'Thiết lập mục tiêu: Ngành, Công ty & Mô tả CV' },
+      { text: 'Loại bỏ Watermark, xuất PDF chuẩn mực' },
     ],
     cta: 'Nâng cấp Premium',
     popular: true,
@@ -137,7 +137,7 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
         <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '12px' }}>{plan.nameEn}</p>
         <div style={{ padding: '8px 12px', borderRadius: '10px', background: 'rgba(99,102,241,0.06)', border: '1px solid var(--border)' }}>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-            <strong style={{ color: 'var(--text-primary)' }}>Phu hop:</strong> {plan.forWho}
+            <strong style={{ color: 'var(--text-primary)' }}>Phù hợp:</strong> {plan.forWho}
           </p>
         </div>
       </div>
@@ -147,7 +147,7 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
         <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginLeft: '4px' }}>{plan.period}</span>
         {plan.id !== 'free' && (
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Thanh toán hằng tháng, hủy bất cứ lúc nào
+            Hủy đăng ký bất cứ lúc nào
           </p>
         )}
       </div>
@@ -234,16 +234,15 @@ export default function PricingSection() {
             }}
           >
             <Crown size={14} color="#f59e0b" />
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#d97706' }}>Bảng giá đơn giản, bán được ngay</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#d97706' }}>Bước Đệm Sự Nghiệp</span>
           </div>
           <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 800, marginBottom: '16px' }}>
-            Free để vào nhanh.
+            Khởi đầu vững chắc.
             <br />
-            <span className="gradient-text">Premium để ứng tuyển nghiêm túc.</span>
+            <span className="gradient-text">Bứt phá với Gói Premium.</span>
           </h2>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto', fontSize: '1rem', lineHeight: 1.7 }}>
-            Gói miễn phí dành cho người mới bắt đầu. Gói Premium mở khóa toàn bộ khung AI giá trị nhất:
-            viết lại kinh nghiệm, ATS review và cover letter theo từng job.
+            Kết hợp sức mạnh trí tuệ nhân tạo và thiết kế đạt chuẩn, CVFlow cung cấp gói sản phẩm minh bạch dành riêng cho hành trình tìm việc của bạn.
           </p>
         </motion.div>
 
@@ -265,10 +264,9 @@ export default function PricingSection() {
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} style={{ textAlign: 'center' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px' }}>
             {[
-              { icon: 'Gemini', text: 'AI chạy server-side, không lộ API key' },
-              { icon: 'ATS', text: 'Phân tích theo target job và JD' },
-              { icon: 'PDF', text: 'Editor và xuất CV sẵn sàng cho người dùng thật' },
-              { icon: 'Save', text: 'Cover letter lưu thẳng vào tài khoản' },
+              { icon: '🔒', text: 'Bảo mật cá nhân an toàn tuyệt đối' },
+              { icon: '⚡', text: 'AI phân tích điểm số chuẩn form ATS' },
+              { icon: '📄', text: 'Xuất file sắc nét, sẵn sàng in ấn trực tiếp' },
             ].map((item) => (
               <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>{item.icon}</span>

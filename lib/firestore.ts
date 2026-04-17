@@ -267,8 +267,7 @@ export async function getTemplates(): Promise<Template[]> {
   return snap.docs.map(d => d.data() as Template);
 }
 
-export async function seedTemplates(): Promise<void> {
-  const templates: Omit<Template, 'createdAt'>[] = [
+export const TEMPLATES: Omit<Template, 'createdAt'>[] = [
     // ─── MIỄN PHÍ – Cổ điển & ATS-Friendly (8 mẫu) ─────────────
     {
       templateId: 'classic-ats-01', name: 'ATS Classic 1', nameVi: 'Cổ Điển 1',
@@ -524,6 +523,9 @@ export async function seedTemplates(): Promise<void> {
       colors: ['#6366f1', '#06b6d4'], isActive: true, usageCount: 750, previewUrl: '',
     },
   ];
+
+export async function seedTemplates(): Promise<void> {
+  const templates = TEMPLATES;
 
   for (const t of templates) {
     await setDoc(doc(db, 'templates', t.templateId), {

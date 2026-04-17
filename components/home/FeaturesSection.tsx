@@ -26,8 +26,8 @@ const features = [
   },
   {
     icon: Star,
-    title: '50+ mẫu CV đẹp',
-    desc: 'Từ tối giản đến sáng tạo, dành cho sinh viên đến designer. Nhiều lựa chọn miễn phí và premium.',
+    title: 'Kho Mẫu Đa Dạng Chuẩn Chuyên Nghiệp',
+    desc: 'Từ thiết kế tối giản đến sáng tạo, dễ dàng lựa chọn miễn phí và nâng cấp Premium khi cần thiết.',
     gradient: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
     bg: 'rgba(236,72,153,0.08)',
   },

@@ -13,8 +13,7 @@ export type PublicFirebaseEnv = z.infer<typeof publicFirebaseEnvSchema>;
 
 const loggedMessages = new Set<string>();
 
-function readEnv(name: keyof PublicFirebaseEnv) {
-  const value = process.env[name];
+function sanitize(value: string | undefined): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
@@ -28,12 +27,12 @@ function logOnce(message: string) {
 
 export function getPublicFirebaseEnv(): PublicFirebaseEnv {
   const raw = {
-    NEXT_PUBLIC_FIREBASE_API_KEY: readEnv('NEXT_PUBLIC_FIREBASE_API_KEY'),
-    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: readEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'),
-    NEXT_PUBLIC_FIREBASE_PROJECT_ID: readEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID'),
-    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: readEnv('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET'),
-    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: readEnv('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'),
-    NEXT_PUBLIC_FIREBASE_APP_ID: readEnv('NEXT_PUBLIC_FIREBASE_APP_ID'),
+    NEXT_PUBLIC_FIREBASE_API_KEY: sanitize(process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: sanitize(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN),
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID: sanitize(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: sanitize(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: sanitize(process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
+    NEXT_PUBLIC_FIREBASE_APP_ID: sanitize(process.env.NEXT_PUBLIC_FIREBASE_APP_ID),
   };
 
   const result = publicFirebaseEnvSchema.safeParse(raw);
@@ -48,7 +47,5 @@ export function getPublicFirebaseEnv(): PublicFirebaseEnv {
   const message = `[env:firebaseClient] Missing Firebase config: ${missingKeys.join(', ')}. Check your environment variables.`;
   logOnce(message);
 
-  // Return the raw values so the app can still initialize (Firebase will fail gracefully)
-  // instead of crashing the entire module at import time.
   return raw as PublicFirebaseEnv;
 }

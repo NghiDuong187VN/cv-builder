@@ -32,7 +32,7 @@ export default function CtaBanner() {
               marginBottom: '24px',
             }}>
               <Sparkles size={14} color="white" />
-              <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600 }}>Bắt đầu ngay hôm nay</span>
+              <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600 }}>Khởi đầu vạn dặm</span>
             </div>
 
             <h2 style={{
@@ -43,7 +43,7 @@ export default function CtaBanner() {
               lineHeight: 1.2,
               textShadow: '0 2px 20px rgba(0,0,0,0.2)',
             }}>
-              Sẵn sàng tạo CV của bạn?
+              Sẵn sàng sở hữu CV chuyên nghiệp?
             </h2>
             <p style={{
               color: 'rgba(255,255,255,0.85)',
@@ -51,7 +51,7 @@ export default function CtaBanner() {
               maxWidth: '500px',
               margin: '0 auto 36px',
             }}>
-              Tham gia cùng <strong style={{ color: 'white' }}>10,000+</strong> người dùng đang xây dựng sự nghiệp với CVFlow.
+              Đừng để mất cơ hội chỉ vì một bản hồ sơ thiết kế sơ sài. Xây dựng thương hiệu cá nhân của bạn ngay hôm nay cùng CVFlow.
             </p>
 
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -75,7 +75,7 @@ export default function CtaBanner() {
                   (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 32px rgba(0,0,0,0.2)';
                 }}
               >
-                <Sparkles size={18} /> Tạo CV Ngay – Miễn Phí <ArrowRight size={18} />
+                <Sparkles size={18} /> Tạo CV miễn phí <ArrowRight size={18} />
               </Link>
             </div>
           </div>

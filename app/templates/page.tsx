@@ -5,7 +5,7 @@ import { Crown, Search, Lock, Eye, Zap, Briefcase, GraduationCap, Code2, Palette
 import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { getTemplates } from '@/lib/firestore';
+import { getTemplates, TEMPLATES } from '@/lib/firestore';
 import { Template } from '@/lib/types';
 import { useAuth } from '@/hooks/useAuth';
 import PremiumBanner from '@/components/ui/PremiumBanner';
@@ -31,15 +31,16 @@ const TEMPLATE_BADGES: Record<string, { label: string; color: string; bg: string
 };
 
 export default function TemplatesPage() {
-  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templates, setTemplates] = useState<Template[]>(TEMPLATES as Template[]);
   const [category, setCategory] = useState('all');
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const isPremium = user?.plan === 'premium';
 
   useEffect(() => {
-    getTemplates().then(data => { setTemplates(data); setLoading(false); });
+    // Không cần gọi getTemplates nữa để không bị lỗi 0 mẫu,
+    // hoặc có thể gọi rồi ghi đè nếu tồn tại, nhưng hiện tại static data là đủ.
   }, []);
 
   const filtered = useMemo(() => {

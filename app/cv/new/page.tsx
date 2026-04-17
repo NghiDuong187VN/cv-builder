@@ -6,7 +6,7 @@ import { ArrowLeft, Search, ChevronRight, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuotaStatus } from '@/hooks/useQuotaStatus';
-import { createCV, getTemplates, seedTemplates } from '@/lib/firestore';
+import { createCV, TEMPLATES } from '@/lib/firestore';
 import { Template } from '@/lib/types';
 import Navbar from '@/components/layout/Navbar';
 import MobileEditorWarning from '@/components/cv/editor/MobileEditorWarning';
@@ -83,8 +83,8 @@ export default function NewCVPage() {
   const { firebaseUser, loading } = useAuth();
   const { quotaStatus, quotaLoading } = useQuotaStatus(firebaseUser);
 
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [templatesLoading, setTemplatesLoading] = useState(true);
+  const [templates, setTemplates] = useState<Template[]>(TEMPLATES as Template[]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
   const [styleFilter, setStyleFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -98,19 +98,6 @@ export default function NewCVPage() {
   useEffect(() => {
     if (!loading && !firebaseUser) router.push('/auth');
   }, [loading, firebaseUser, router]);
-
-  useEffect(() => {
-    getTemplates().then(async data => {
-      if (data.length === 0) {
-        await seedTemplates();
-        const seeded = await getTemplates();
-        setTemplates(seeded);
-      } else {
-        setTemplates(data);
-      }
-      setTemplatesLoading(false);
-    }).catch(() => setTemplatesLoading(false));
-  }, []);
 
   const filtered = useMemo(() => {
     return templates.filter(t => {
