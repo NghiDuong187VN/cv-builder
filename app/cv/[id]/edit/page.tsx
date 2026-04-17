@@ -1327,17 +1327,7 @@ export default function CVEditorPage() {
           </div>
           <div
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 10px',
-              borderRadius: '9999px',
-              border: '1px solid rgba(99,102,241,0.16)',
-              background: 'rgba(99,102,241,0.06)',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              flexShrink: 0,
+              display: 'none', // hide quota here on small screens to save space
             }}
             title="Quota hiện tại của tài khoản"
           >
@@ -1346,10 +1336,24 @@ export default function CVEditorPage() {
               : `AI ${aiLimit === null ? '∞' : `${aiUsedToday}/${aiLimit}`} • CV ${cvLimit === null ? cvCount : `${cvCount}/${cvLimit}`}`}
           </div>
 
+          <button
+            onClick={() => {
+              updateMeta('isPublic', !cv.isPublic);
+              toast.success(!cv.isPublic ? 'Đã đổi sang chế độ Công Khai' : 'Đã đổi sang chế độ Riêng Tư');
+            }}
+            className="btn btn-ghost btn-sm"
+            title={cv.isPublic ? "Đang chia sẻ công khai" : "Đang ở chế độ riêng tư"}
+            style={{ flexShrink: 0, color: cv.isPublic ? '#10b981' : 'inherit' }}
+          >
+            <Globe size={14} />
+            <span style={{ fontSize: '0.75rem', display: 'none' }} className="hidden sm:inline">
+              {cv.isPublic ? 'Public' : 'Private'}
+            </span>
+          </button>
+
           {/* Language toggle */}
           <button onClick={toggleLanguage} className="btn btn-ghost btn-sm" title="Đổi ngôn ngữ CV" style={{ flexShrink: 0 }}>
-            <Globe size={14} />
-            <span style={{ fontSize: '0.75rem' }}>{cv.language === 'vi' ? 'VI' : 'EN'}</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>{cv.language === 'vi' ? 'VI' : 'EN'}</span>
           </button>
 
           {/* Preview toggle */}
@@ -1359,7 +1363,9 @@ export default function CVEditorPage() {
             style={{ flexShrink: 0 }}
           >
             {previewMode ? <EyeOff size={14} /> : <Eye size={14} />}
-            <span style={{ fontSize: '0.75rem' }}>{previewMode ? 'Chỉnh sửa' : 'Xem trước'}</span>
+            <span style={{ fontSize: '0.75rem', display: 'none' }} className="hidden sm:inline">
+              {previewMode ? 'Chỉnh sửa' : 'Xem trước'}
+            </span>
           </button>
 
           <ExportButton cvTitle={cv.title} printPath={`/cv/${cv.cvId}/print`} />
@@ -1371,7 +1377,7 @@ export default function CVEditorPage() {
             style={{ flexShrink: 0 }}
           >
             {saving ? <Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
-            Lưu
+            <span style={{ display: 'none' }} className="hidden sm:inline">Lưu</span>
           </button>
         </div>
 
@@ -1404,7 +1410,7 @@ export default function CVEditorPage() {
       </div>
 
       {/* ── Layout Editor ── */}
-      <div style={{
+      <div className={`editor-layout ${previewMode ? 'preview-active' : 'form-active'}`} style={{
         paddingTop: previewMode ? '56px' : '102px',
         minHeight: '100vh',
         display: 'flex',
@@ -1412,7 +1418,7 @@ export default function CVEditorPage() {
       }}>
         {/* Form Panel */}
         {!previewMode && (
-          <div style={{
+          <div className="form-panel" style={{
             width: `${panelWidth}px`, flexShrink: 0, overflowY: 'auto',
             background: 'var(--bg-card)',
             height: 'calc(100vh - 102px)',
@@ -2166,6 +2172,7 @@ export default function CVEditorPage() {
         {/* ── Draggable Divider ── */}
         {!previewMode && (
           <div
+            className="resizable-divider"
             onMouseDown={onDividerMouseDown}
             title="Kéo để thay đổi kích thước"
             style={{
@@ -2210,7 +2217,7 @@ export default function CVEditorPage() {
         )}
 
         {/* Preview Panel */}
-      <div style={{
+      <div className="preview-panel" style={{
           flex: 1,
           overflow: 'auto',
           background: '#e8ecf0',
@@ -2640,6 +2647,43 @@ export default function CVEditorPage() {
 
       <style jsx global>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 1024px) {
+          .editor-layout {
+            flex-direction: column;
+          }
+          .editor-layout.form-active .form-panel {
+            width: 100% !important;
+            max-width: 100vw !important;
+            position: static !important;
+            height: auto !important;
+          }
+          .editor-layout.form-active .resizable-divider {
+            display: none !important;
+          }
+          .editor-layout.form-active .preview-panel {
+            display: none !important;
+          }
+          
+          .editor-layout.preview-active .preview-panel {
+            width: 100% !important;
+            padding: 16px !important;
+            display: flex !important;
+          }
+          
+          #cv-preview {
+            transform: scale(0.9);
+            transform-origin: top center;
+          }
+        }
+        @media (max-width: 768px) {
+          #cv-preview {
+            transform: scale(0.42);
+          }
+          .editor-layout.preview-active .preview-panel {
+            padding: 8px !important;
+          }
+        }
       `}</style>
     </>
   );

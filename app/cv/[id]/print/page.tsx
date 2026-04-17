@@ -124,8 +124,21 @@ export default function PrintCvPage() {
 
       hasAutoPrinted.current = true;
 
+      // Update document title so that "Save as PDF" defaults to CV_HoTen_ViTri.pdf
+      const fullName = (cv.content.personalInfo?.fullName || 'Untitled').trim().replace(/\s+/g, '_');
+      const targetJob = (cv.targetJob || cv.title || 'CV').trim().replace(/\s+/g, '_');
+      const originalTitle = document.title;
+      document.title = `CV_${fullName}_${targetJob}`;
+
       window.setTimeout(() => {
+        // We use native window.print() instead of html2canvas/jsPDF because:
+        // 1. html2canvas renders CV as an image -> text is NOT selectable, failing ATS parsing completely.
+        // 2. Browser native print preserves real text nodes, fonts, vectors, and creates ATS-friendly PDFs.
+        // 3. react-pdf requires rewriting all templates to primitive components, losing Tailwind support.
         window.print();
+        
+        // Restore title after print dialog opens
+        setTimeout(() => { document.title = originalTitle; }, 1000);
       }, 180);
     };
 
@@ -285,6 +298,16 @@ export default function PrintCvPage() {
             min-height: 297mm !important;
             box-shadow: none !important;
             margin: 0 !important;
+          }
+          
+          /* Tối ưu không bị cắt chữ giữa dòng khi in nhiều trang */
+          h1, h2, h3, h4, h5, h6 {
+            page-break-after: avoid;
+            break-after: avoid;
+          }
+          ul, ol, dl, section, article, .experience-item, .education-item, li {
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
         }
       `}</style>
