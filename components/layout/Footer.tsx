@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ExternalLink, FileText, GitFork, Heart, Mail } from 'lucide-react';
-import { CREATOR_INFO } from '@/lib/creator';
+import type { CSSProperties } from 'react';
+import { FileText, Heart, Mail, MessageSquare } from 'lucide-react';
+import { LIVE_CHAT_CONFIG, SUPPORT_INFO } from '@/lib/creator';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -14,9 +15,8 @@ export default function Footer() {
       { href: '/auth', label: 'Tạo CV miễn phí' },
     ],
     'Hỗ trợ': [
-      { href: '/support', label: 'Trang hỗ trợ' },
-      { href: `mailto:${CREATOR_INFO.email}`, label: 'Email hỗ trợ' },
-      { href: CREATOR_INFO.zaloUrl, label: 'Liên hệ Zalo' },
+      { href: '/support', label: 'Trung tâm hỗ trợ' },
+      { href: `mailto:${SUPPORT_INFO.email}`, label: 'Email hỗ trợ' },
     ],
     'Pháp lý': [
       { href: '#privacy', label: 'Chính sách bảo mật' },
@@ -24,6 +24,25 @@ export default function Footer() {
       { href: '#cookies', label: 'Cookie Policy' },
     ],
   };
+
+  const quickActions = [
+    {
+      icon: Mail,
+      href: `mailto:${SUPPORT_INFO.email}`,
+      label: 'Email hỗ trợ',
+      external: false,
+    },
+    ...(LIVE_CHAT_CONFIG.enabled
+      ? [
+          {
+            icon: MessageSquare,
+            href: '/support',
+            label: 'Live chat',
+            external: false,
+          },
+        ]
+      : []),
+  ];
 
   return (
     <footer
@@ -43,7 +62,16 @@ export default function Footer() {
           }}
         >
           <div style={{ gridColumn: 'span 1' }}>
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', marginBottom: '16px' }}>
+            <Link
+              href="/"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                textDecoration: 'none',
+                marginBottom: '16px',
+              }}
+            >
               <div
                 style={{
                   width: '36px',
@@ -70,70 +98,101 @@ export default function Footer() {
                 CVFlow
               </span>
             </Link>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.7, maxWidth: '260px' }}>
-              Nền tảng tạo CV online hiện đại, giúp bạn sẵn sàng chinh phục nhà tuyển dụng.
+
+            <p
+              style={{
+                color: 'var(--text-muted)',
+                fontSize: '0.88rem',
+                lineHeight: 1.7,
+                maxWidth: '260px',
+              }}
+            >
+              Nền tảng tạo CV online hiện đại, giúp bạn sẵn sàng chinh phục nhà tuyển dụng với hồ sơ rõ ràng và chuyên nghiệp.
             </p>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.7, maxWidth: '280px', marginTop: '10px' }}>
-              Hỗ trợ sự cố bởi {CREATOR_INFO.name} ({CREATOR_INFO.role})<br />
-              Email: {CREATOR_INFO.email}<br />
-              Zalo/Phone: {CREATOR_INFO.phone}
+
+            <p
+              style={{
+                color: 'var(--text-secondary)',
+                fontSize: '0.8rem',
+                lineHeight: 1.7,
+                maxWidth: '320px',
+                marginTop: '10px',
+              }}
+            >
+              {SUPPORT_INFO.teamName} ({SUPPORT_INFO.role})
+              <br />
+              Email: {SUPPORT_INFO.email}
+              <br />
+              Giờ hỗ trợ: {SUPPORT_INFO.supportHours}
+              {LIVE_CHAT_CONFIG.enabled && (
+                <>
+                  <br />
+                  Live chat đã được bật trên website.
+                </>
+              )}
             </p>
 
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              {[
-                { icon: GitFork, href: 'https://github.com', label: 'GitHub' },
-                { icon: ExternalLink, href: 'https://linkedin.com', label: 'LinkedIn' },
-                { icon: ExternalLink, href: CREATOR_INFO.zaloUrl, label: 'Zalo' },
-                { icon: Mail, href: `mailto:${CREATOR_INFO.email}`, label: 'Email' },
-              ].map(({ icon: Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    background: 'rgba(99,102,241,0.08)',
-                    border: '1px solid var(--border)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--text-muted)',
-                    transition: 'var(--transition)',
-                    textDecoration: 'none',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'var(--primary)';
-                    (e.currentTarget as HTMLElement).style.color = 'white';
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--primary)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.08)';
-                    (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                  }}
-                >
-                  <Icon size={16} />
-                </a>
-              ))}
+              {quickActions.map(({ icon: Icon, href, label, external }) =>
+                external ? (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    style={iconButtonStyle}
+                    onMouseEnter={e => applyHoverState(e.currentTarget, true)}
+                    onMouseLeave={e => applyHoverState(e.currentTarget, false)}
+                  >
+                    <Icon size={16} />
+                  </a>
+                ) : href.startsWith('mailto:') ? (
+                  <a
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    style={iconButtonStyle}
+                    onMouseEnter={e => applyHoverState(e.currentTarget, true)}
+                    onMouseLeave={e => applyHoverState(e.currentTarget, false)}
+                  >
+                    <Icon size={16} />
+                  </a>
+                ) : (
+                  <Link
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    style={iconButtonStyle}
+                    onMouseEnter={e => applyHoverState(e.currentTarget, true)}
+                    onMouseLeave={e => applyHoverState(e.currentTarget, false)}
+                  >
+                    <Icon size={16} />
+                  </Link>
+                )
+              )}
             </div>
           </div>
 
           {Object.entries(links).map(([category, items]) => (
             <div key={category}>
-              <h4 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '16px' }}>{category}</h4>
+              <h4
+                style={{
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  color: 'var(--text-primary)',
+                  marginBottom: '16px',
+                }}
+              >
+                {category}
+              </h4>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {items.map(({ href, label }) => (
                   <li key={label}>
-                    {href.startsWith('http') || href.startsWith('mailto:') ? (
+                    {href.startsWith('mailto:') ? (
                       <a
                         href={href}
-                        target={href.startsWith('http') ? '_blank' : undefined}
-                        rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                        style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.88rem', transition: 'var(--transition)' }}
+                        style={textLinkStyle}
                         onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
                         onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                       >
@@ -142,7 +201,7 @@ export default function Footer() {
                     ) : (
                       <Link
                         href={href}
-                        style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.88rem', transition: 'var(--transition)' }}
+                        style={textLinkStyle}
                         onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
                         onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                       >
@@ -167,12 +226,22 @@ export default function Footer() {
             gap: '12px',
           }}
         >
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem' }}>© {year} CVFlow. Bảo lưu mọi quyền.</p>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem' }}>
+            © {year} CVFlow. Bảo lưu mọi quyền.
+          </p>
+          <p
+            style={{
+              color: 'var(--text-muted)',
+              fontSize: '0.83rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
             Made with <Heart size={14} color="#ec4899" fill="#ec4899" /> for people who dream big
           </p>
-          <a href={CREATOR_INFO.zaloUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
-            Liên hệ nhanh Zalo: {CREATOR_INFO.phone}
+          <a href={`mailto:${SUPPORT_INFO.email}`} className="btn btn-primary btn-sm">
+            Liên hệ hỗ trợ
           </a>
         </div>
       </div>
@@ -180,3 +249,29 @@ export default function Footer() {
   );
 }
 
+const iconButtonStyle: CSSProperties = {
+  width: '36px',
+  height: '36px',
+  borderRadius: '10px',
+  background: 'rgba(99,102,241,0.08)',
+  border: '1px solid var(--border)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: 'var(--text-muted)',
+  transition: 'var(--transition)',
+  textDecoration: 'none',
+};
+
+const textLinkStyle: CSSProperties = {
+  color: 'var(--text-muted)',
+  textDecoration: 'none',
+  fontSize: '0.88rem',
+  transition: 'var(--transition)',
+};
+
+function applyHoverState(target: HTMLElement, isHovering: boolean) {
+  target.style.background = isHovering ? 'var(--primary)' : 'rgba(99,102,241,0.08)';
+  target.style.color = isHovering ? 'white' : 'var(--text-muted)';
+  target.style.borderColor = isHovering ? 'var(--primary)' : 'var(--border)';
+}

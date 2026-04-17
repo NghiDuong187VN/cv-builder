@@ -31,43 +31,43 @@ interface Plan {
 const plans: Plan[] = [
   {
     id: 'free',
-    name: 'Mien Phi',
+    name: 'Miễn phí',
     nameEn: 'Free Forever',
-    price: '0d',
-    period: 'mai mai',
+    price: '0đ',
+    period: 'mãi mãi',
     icon: Zap,
     gradient: 'linear-gradient(135deg, #06b6d4, #6366f1)',
-    forWho: 'Nguoi can tao CV dep, dung nhanh va chua can toi uu sau cho tung vi tri.',
+    forWho: 'Người cần tạo CV đẹp, dùng nhanh và chưa cần tối ưu sâu cho từng vị trí.',
     features: [
-      { text: 'Tao va luu toi da 3 CV' },
-      { text: 'Thu vien template co ban' },
-      { text: 'Xuat PDF va chia se link CV' },
-      { text: 'Ho tro song ngu Viet / Anh' },
-      { text: 'Gemini tao summary co ban: 3 luot moi ngay', highlight: true },
+      { text: 'Tạo và lưu tối đa 3 CV' },
+      { text: 'Thư viện mẫu CV cơ bản' },
+      { text: 'Xuất PDF và chia sẻ link CV' },
+      { text: 'Hỗ trợ song ngữ Việt / Anh' },
+      { text: 'Gemini tạo phần tóm tắt cơ bản: 3 lượt mỗi ngày', highlight: true },
     ],
-    cta: 'Bat dau mien phi',
+    cta: 'Bắt đầu miễn phí',
     ctaBg: 'linear-gradient(135deg, #06b6d4, #6366f1)',
     href: '/auth',
   },
   {
     id: 'premium',
     name: 'Premium',
-    nameEn: 'Ban CV de ung tuyen nghiem tuc',
-    price: '79.000d',
-    period: '/thang',
-    badge: 'Pho bien nhat',
+    nameEn: 'Dành cho ứng tuyển nghiêm túc',
+    price: '79.000đ',
+    period: '/tháng',
+    badge: 'Phổ biến nhất',
     icon: Crown,
     gradient: 'linear-gradient(135deg, #f59e0b, #ec4899, #8b5cf6)',
-    forWho: 'Nguoi dang ung tuyen nhieu vi tri va muon AI giup chinh noi dung de tang ti le qua vong.',
+    forWho: 'Người đang ứng tuyển nhiều vị trí và muốn AI hỗ trợ tối ưu nội dung để tăng tỷ lệ qua vòng.',
     features: [
-      { text: 'Khong gioi han so CV va mo khoa toan bo template cao cap', highlight: true },
-      { text: 'Gemini rewrite tung muc kinh nghiem de manh hon', highlight: true },
-      { text: 'ATS Optimizer: diem so, gap, keyword missing, recommendations', highlight: true },
-      { text: 'AI tao cover letter theo target job va JD', highlight: true },
-      { text: 'Nhap target job, target company va job description ngay trong editor' },
-      { text: 'PDF sach, CV dep hon, toi uu cho ung tuyen nghiem tuc' },
+      { text: 'Không giới hạn số CV và mở khóa toàn bộ mẫu cao cấp', highlight: true },
+      { text: 'Gemini viết lại từng mục kinh nghiệm để thuyết phục hơn', highlight: true },
+      { text: 'ATS Optimizer: chấm điểm, phát hiện thiếu sót, từ khóa còn thiếu và gợi ý cải thiện', highlight: true },
+      { text: 'AI tạo cover letter theo vị trí ứng tuyển và JD', highlight: true },
+      { text: 'Nhập target job, target company và job description ngay trong editor' },
+      { text: 'Xuất PDF sạch, CV đẹp hơn và tối ưu cho ứng tuyển nghiêm túc' },
     ],
-    cta: 'Nang cap Premium',
+    cta: 'Nâng cấp Premium',
     popular: true,
     ctaBg: 'linear-gradient(135deg, #f59e0b, #ec4899, #8b5cf6)',
     href: '/auth',
@@ -147,7 +147,7 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
         <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginLeft: '4px' }}>{plan.period}</span>
         {plan.id !== 'free' && (
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Thanh toan hang thang, huy bat cu luc nao
+            Thanh toán hằng tháng, hủy bất cứ lúc nào
           </p>
         )}
       </div>
@@ -234,16 +234,16 @@ export default function PricingSection() {
             }}
           >
             <Crown size={14} color="#f59e0b" />
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#d97706' }}>Bang gia don gian, ban duoc ngay</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#d97706' }}>Bảng giá đơn giản, bán được ngay</span>
           </div>
           <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 800, marginBottom: '16px' }}>
-            Free de vao nhanh.
+            Free để vào nhanh.
             <br />
-            <span className="gradient-text">Premium de ung tuyen nghiem tuc.</span>
+            <span className="gradient-text">Premium để ứng tuyển nghiêm túc.</span>
           </h2>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto', fontSize: '1rem', lineHeight: 1.7 }}>
-            Goi mien phi cho nguoi moi bat dau. Goi Premium mo khoa toan bo khung AI gia tri nhat:
-            rewrite kinh nghiem, ATS review va cover letter theo tung job.
+            Gói miễn phí dành cho người mới bắt đầu. Gói Premium mở khóa toàn bộ khung AI giá trị nhất:
+            viết lại kinh nghiệm, ATS review và cover letter theo từng job.
           </p>
         </motion.div>
 
@@ -265,10 +265,10 @@ export default function PricingSection() {
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} style={{ textAlign: 'center' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px' }}>
             {[
-              { icon: 'Gemini', text: 'AI server-side, khong lo API key' },
-              { icon: 'ATS', text: 'Phan tich theo target job va JD' },
-              { icon: 'PDF', text: 'Editor va xuat CV da san sang cho user that' },
-              { icon: 'Save', text: 'Cover letter luu thang vao tai khoan' },
+              { icon: 'Gemini', text: 'AI chạy server-side, không lộ API key' },
+              { icon: 'ATS', text: 'Phân tích theo target job và JD' },
+              { icon: 'PDF', text: 'Editor và xuất CV sẵn sàng cho người dùng thật' },
+              { icon: 'Save', text: 'Cover letter lưu thẳng vào tài khoản' },
             ].map((item) => (
               <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>{item.icon}</span>

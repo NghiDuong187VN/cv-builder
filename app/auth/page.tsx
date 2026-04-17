@@ -28,8 +28,9 @@ export default function AuthPage() {
       } else {
         toast.error('Đăng nhập thất bại. Vui lòng thử lại.', { id: toastId });
       }
-    } catch (err) {
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại.', { id: toastId });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Có lỗi xảy ra. Vui lòng thử lại.';
+      toast.error(message, { id: toastId });
     }
   };
 

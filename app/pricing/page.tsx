@@ -5,9 +5,9 @@ import FeatureComparison from '@/components/home/FeatureComparison';
 import BeforeAfterShowcase from '@/components/home/BeforeAfterShowcase';
 
 export const metadata = {
-  title: 'Bang Gia | CVFlow',
+  title: 'Bảng Giá | CVFlow',
   description:
-    'Chon goi phu hop. Bat dau mien phi, nang cap khi can. Premium mo khoa ATS Optimizer, cover letter AI va rewrite kinh nghiem bang Gemini.',
+    'Chọn gói phù hợp. Bắt đầu miễn phí, nâng cấp khi cần. Premium mở khóa ATS Optimizer, cover letter AI và viết lại kinh nghiệm bằng Gemini.',
 };
 
 export default function PricingPage() {
@@ -36,7 +36,7 @@ export default function PricingPage() {
             }}
           >
             <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--primary)' }}>
-              Bang gia minh bach
+              Bảng giá minh bạch
             </span>
           </div>
           <h1
@@ -47,7 +47,7 @@ export default function PricingPage() {
               lineHeight: 1.15,
             }}
           >
-            Ban CV dep la buoc dau.
+            Bản CV đẹp là bước đầu.
             <br />
             <span
               style={{
@@ -57,7 +57,7 @@ export default function PricingPage() {
                 backgroundClip: 'text',
               }}
             >
-              Ban kha nang qua vong moi la gia tri that.
+              Bán khả năng qua vòng mới là giá trị thật.
             </span>
           </h1>
           <p
@@ -69,8 +69,8 @@ export default function PricingPage() {
               lineHeight: 1.7,
             }}
           >
-            Goi Free giup user vao nhanh va thay gia tri ngay. Goi Premium mo khoa phan an tien nhat:
-            AI rewrite kinh nghiem, ATS review theo JD va cover letter tao xong co the luu ngay vao tai khoan.
+            Gói Free giúp người dùng vào nhanh và thấy giá trị ngay. Gói Premium mở khóa phần ăn tiền nhất:
+            AI viết lại kinh nghiệm, ATS review theo JD và cover letter tạo xong có thể lưu ngay vào tài khoản.
           </p>
         </div>
 
@@ -87,28 +87,28 @@ export default function PricingPage() {
 function FaqSection() {
   const faqs = [
     {
-      q: 'Goi mien phi co du de xin viec khong?',
-      a: 'Du de bat dau. User co the tao CV dep, xuat PDF, chia se link va dung AI tao summary co ban 3 luot moi ngay. Premium danh cho giai doan user can toi uu CV theo tung vi tri cu the.',
+      q: 'Gói miễn phí có đủ để xin việc không?',
+      a: 'Đủ để bắt đầu. Người dùng có thể tạo CV đẹp, xuất PDF, chia sẻ link và dùng AI tạo phần tóm tắt cơ bản 3 lượt mỗi ngày. Premium dành cho giai đoạn cần tối ưu CV theo từng vị trí cụ thể.',
     },
     {
-      q: 'Premium dang tien o diem nao?',
-      a: 'Premium dang tien khi user dang ung tuyen nghiem tuc: AI rewrite tung muc kinh nghiem, ATS score co keyword gap ro rang, va cover letter tao theo target job + job description. Day la nhung tinh nang tao chenh lech ro voi goi Free.',
+      q: 'Premium đáng tiền ở điểm nào?',
+      a: 'Premium đáng tiền khi bạn đang ứng tuyển nghiêm túc: AI viết lại từng mục kinh nghiệm, ATS score có khoảng trống từ khóa rõ ràng, và cover letter tạo theo target job cùng job description. Đây là những tính năng tạo chênh lệch rõ với gói Free.',
     },
     {
-      q: 'Tinh nang AI hoat dong nhu the nao?',
-      a: 'Gemini chay o backend, khong lo API key tren client. AI dung du lieu that tu CV cua user nhu target job, target company va job description de sinh noi dung. Premium se dung duoc bo logic day du hon Free.',
+      q: 'Tính năng AI hoạt động như thế nào?',
+      a: 'Gemini chạy ở backend nên không lộ API key trên client. AI dùng dữ liệu thật từ CV như target job, target company và job description để sinh nội dung. Premium sử dụng bộ logic đầy đủ hơn gói Free.',
     },
     {
-      q: 'ATS Optimizer tra ve gi?',
-      a: 'ATS Optimizer tra ve diem ATS, diem manh, khoang trong, keyword con thieu va danh sach recommendation. Muc tieu la de user biet phan nao can sua truoc khi gui CV.',
+      q: 'ATS Optimizer trả về gì?',
+      a: 'ATS Optimizer trả về điểm ATS, điểm mạnh, khoảng trống, từ khóa còn thiếu và danh sách gợi ý cải thiện. Mục tiêu là giúp bạn biết phần nào cần sửa trước khi gửi CV.',
     },
     {
-      q: 'Cover letter AI da luu duoc chua?',
-      a: 'Da. Sau khi tao cover letter trong editor, user co the sua lai, sao chep hoac luu thang vao tai khoan Firestore de dung lai sau.',
+      q: 'Cover letter AI đã lưu được chưa?',
+      a: 'Đã. Sau khi tạo cover letter trong editor, bạn có thể sửa lại, sao chép hoặc lưu thẳng vào tài khoản Firestore để dùng lại sau.',
     },
     {
-      q: 'Co duoc dung thu truoc khi nang cap khong?',
-      a: 'Co. Goi Free da mo summary AI 3 luot moi ngay. Day la cach de user thu gia tri cua AI truoc khi quyet dinh nang cap Premium.',
+      q: 'Có được dùng thử trước khi nâng cấp không?',
+      a: 'Có. Gói Free đã mở phần tóm tắt AI 3 lượt mỗi ngày. Đây là cách để bạn thử giá trị của AI trước khi quyết định nâng cấp Premium.',
     },
   ];
 
@@ -117,10 +117,10 @@ function FaqSection() {
       <div className="container" style={{ maxWidth: '760px' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, marginBottom: '12px' }}>
-            Cau hoi thuong gap
+            Câu hỏi thường gặp
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-            Copy va offer o day da duoc can lai theo dung tinh nang hien co trong san pham.
+            Nội dung ở đây đã được cân lại theo đúng tính năng hiện có trong sản phẩm.
           </p>
         </div>
 

@@ -2,12 +2,17 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Search, ChevronRight, Star, Sparkles, Check, X } from 'lucide-react';
+import { ArrowLeft, Search, ChevronRight, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { useQuotaStatus } from '@/hooks/useQuotaStatus';
 import { createCV, getTemplates, seedTemplates } from '@/lib/firestore';
 import { Template } from '@/lib/types';
 import Navbar from '@/components/layout/Navbar';
+import MobileEditorWarning from '@/components/cv/editor/MobileEditorWarning';
+import QuotaUsageCard from '@/components/cv/editor/QuotaUsageCard';
+import { FREE_AI_DAILY_LIMIT } from '@/lib/ai';
+import { FREE_CV_LIMIT } from '@/lib/quota';
 import toast from 'react-hot-toast';
 
 const STYLE_FILTERS = [
@@ -41,7 +46,7 @@ const TEMPLATE_VISUAL: Record<string, {bg: string, accent: string, pattern: stri
   'marketing-01':    { bg: 'linear-gradient(135deg,#f59e0b,#ef4444)', accent: '#fde68a', pattern: '2col' },
 };
 
-function TemplateMiniPreview({ templateId, visual, pattern }: { templateId: string; visual: typeof TEMPLATE_VISUAL[string]; pattern: string }) {
+function TemplateMiniPreview({ visual, pattern }: { visual: typeof TEMPLATE_VISUAL[string]; pattern: string }) {
   const is2col = pattern === '2col';
   return (
     <div style={{ width: '100%', height: '100%', background: '#f8fafc', borderRadius: '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -76,6 +81,7 @@ function TemplateMiniPreview({ templateId, visual, pattern }: { templateId: stri
 export default function NewCVPage() {
   const router = useRouter();
   const { firebaseUser, loading } = useAuth();
+  const { quotaStatus, quotaLoading } = useQuotaStatus(firebaseUser);
 
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
@@ -87,6 +93,7 @@ export default function NewCVPage() {
   const [creating, setCreating] = useState(false);
   const [cvTitle, setCvTitle] = useState('');
   const [showNameModal, setShowNameModal] = useState(false);
+  const [showCvLimitModal, setShowCvLimitModal] = useState(false);
 
   useEffect(() => {
     if (!loading && !firebaseUser) router.push('/auth');
@@ -114,7 +121,21 @@ export default function NewCVPage() {
     });
   }, [templates, styleFilter, roleFilter, search]);
 
+  const aiLimit = quotaStatus?.aiLimit ?? FREE_AI_DAILY_LIMIT;
+  const aiUsed = quotaStatus?.usedToday ?? 0;
+  const cvLimit = quotaStatus?.cvLimit ?? FREE_CV_LIMIT;
+  const cvUsed = quotaStatus?.cvCount ?? 0;
+  const atCvLimit = quotaStatus?.cvLimit !== null && (quotaStatus?.cvRemaining ?? 0) <= 0;
+
   const handleUseTemplate = (template: Template) => {
+    if (quotaLoading) {
+      toast('Đang kiểm tra quota tài khoản...');
+      return;
+    }
+    if (atCvLimit) {
+      setShowCvLimitModal(true);
+      return;
+    }
     setSelectedTemplate(template);
     setCvTitle(`CV ${template.nameVi} ${new Date().getFullYear()}`);
     setPreviewTemplate(null);
@@ -122,6 +143,10 @@ export default function NewCVPage() {
   };
 
   const handleCreate = async () => {
+    if (atCvLimit) {
+      setShowCvLimitModal(true);
+      return;
+    }
     if (!firebaseUser || !selectedTemplate || !cvTitle.trim()) {
       toast.error('Vui lòng nhập tên CV');
       return;
@@ -144,7 +169,7 @@ export default function NewCVPage() {
       });
       toast.success('Tạo CV thành công! 🎉');
       router.push(`/cv/${cvId}/edit`);
-    } catch (err) {
+    } catch {
       toast.error('Có lỗi xảy ra, vui lòng thử lại');
       setCreating(false);
     }
@@ -152,6 +177,7 @@ export default function NewCVPage() {
 
   return (
     <>
+      <MobileEditorWarning storageKey="cv-new-mobile-warning" />
       <Navbar />
       <div style={{ paddingTop: '80px', minHeight: '100vh', background: 'var(--bg-base)' }}>
         {/* Header */}
@@ -184,6 +210,10 @@ export default function NewCVPage() {
         </div>
 
         <div className="container" style={{ padding: '24px' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <QuotaUsageCard aiUsed={aiUsed} aiLimit={aiLimit} cvUsed={cvUsed} cvLimit={cvLimit} />
+          </div>
+
           {/* Filter Tabs */}
           <div style={{ marginBottom: '24px' }}>
             {/* Style filters */}
@@ -270,7 +300,7 @@ export default function NewCVPage() {
                         style={{ height: '180px', padding: '10px', background: '#f1f5f9', position: 'relative' }}
                         onClick={() => setPreviewTemplate(previewTemplate?.templateId === t.templateId ? null : t)}
                       >
-                        <TemplateMiniPreview templateId={t.templateId} visual={visual} pattern={visual.pattern} />
+                        <TemplateMiniPreview visual={visual} pattern={visual.pattern} />
                         {t.tier === 'premium' && (
                           <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'linear-gradient(135deg,#f59e0b,#ec4899)', color: 'white', fontSize: '0.65rem', fontWeight: 700, padding: '3px 10px', borderRadius: '9999px' }}>
                             PREMIUM
@@ -307,6 +337,35 @@ export default function NewCVPage() {
 
       {/* Modal Đặt tên CV */}
       <AnimatePresence>
+        {showCvLimitModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+            onClick={e => { if (e.target === e.currentTarget) setShowCvLimitModal(false); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{ background: 'var(--bg-card)', borderRadius: '24px', padding: '32px', maxWidth: '440px', width: '100%', boxShadow: '0 40px 80px rgba(0,0,0,0.3)' }}
+            >
+              <h2 style={{ fontWeight: 800, fontSize: '1.35rem', marginBottom: '8px' }}>Đã đạt giới hạn gói Free</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: '20px' }}>
+                Tài khoản Free chỉ tạo tối đa {FREE_CV_LIMIT} CV. Nâng cấp Premium để tạo thêm CV mới và tiếp tục dùng đầy đủ công cụ.
+              </p>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => setShowCvLimitModal(false)} className="btn btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
+                  Để sau
+                </button>
+                <Link href="/pricing" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowCvLimitModal(false)}>
+                  Nâng cấp Premium
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
         {showNameModal && selectedTemplate && (
           <motion.div
             initial={{ opacity: 0 }}

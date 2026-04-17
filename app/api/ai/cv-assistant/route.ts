@@ -3,8 +3,16 @@ import { GoogleGenAI } from '@google/genai';
 import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
 
+import { safeParseJson, validateAtsReviewResponse } from '@/lib/atsReview';
 import { canUseAiAction, FREE_AI_DAILY_LIMIT } from '@/lib/ai';
 import { getAdminAuth, getAdminDb } from '@/lib/firebaseAdmin';
+import { EnvValidationError, getGeminiApiKey } from '@/lib/env/server';
+import {
+  validateFresherSummaryResponse,
+  validateStudentBulletsResponse,
+} from '@/lib/studentAi';
+import { validateTailorCvForJobResponse } from '@/lib/tailorCv';
+import { ensureUserDocumentWithAdmin } from '@/lib/userDocumentAdmin';
 
 export const runtime = 'nodejs';
 
@@ -24,6 +32,15 @@ const experienceSchema = z.object({
   to: z.string().optional().default(''),
   current: z.boolean().optional().default(false),
   description: z.string().optional().default(''),
+});
+
+const studentAiInputSchema = z.object({
+  targetJob: z.string().optional().default(''),
+  fieldOfStudy: z.string().optional().default(''),
+  itemName: z.string().optional().default(''),
+  role: z.string().optional().default(''),
+  technologies: z.array(z.string()).default([]),
+  achievements: z.string().optional().default(''),
 });
 
 const summaryRequestSchema = z.object({
@@ -109,11 +126,57 @@ const coverLetterRequestSchema = z.object({
   recipientName: z.string().optional().default(''),
 });
 
+const tailorCvForJobRequestSchema = z.object({
+  action: z.literal('tailorCvForJob'),
+  language: z.enum(['vi', 'en']),
+  cv: z.object({
+    title: z.string().optional().default(''),
+    targetJob: z.string().optional().default(''),
+    targetCompany: z.string().optional().default(''),
+    jobDescription: z.string().optional().default(''),
+    personalInfo: personalInfoSchema,
+    summary: z.string().optional().default(''),
+    experience: z.array(experienceSchema).default([]),
+    skills: z.array(z.object({
+      name: z.string(),
+      level: z.number().optional(),
+      category: z.string().optional(),
+    })).default([]),
+    education: z.array(z.object({
+      school: z.string().optional().default(''),
+      degree: z.string().optional().default(''),
+      field: z.string().optional().default(''),
+    })).default([]),
+  }),
+});
+
+const fresherSummaryRequestSchema = z.object({
+  action: z.literal('fresherSummary'),
+  language: z.enum(['vi', 'en']),
+  profile: studentAiInputSchema,
+});
+
+const generateProjectBulletsRequestSchema = z.object({
+  action: z.literal('generateProjectBullets'),
+  language: z.enum(['vi', 'en']),
+  project: studentAiInputSchema,
+});
+
+const convertActivitiesToCvBulletsRequestSchema = z.object({
+  action: z.literal('convertActivitiesToCvBullets'),
+  language: z.enum(['vi', 'en']),
+  activity: studentAiInputSchema,
+});
+
 const requestSchema = z.discriminatedUnion('action', [
   summaryRequestSchema,
+  fresherSummaryRequestSchema,
   rewriteExperienceRequestSchema,
   atsReviewRequestSchema,
   coverLetterRequestSchema,
+  generateProjectBulletsRequestSchema,
+  convertActivitiesToCvBulletsRequestSchema,
+  tailorCvForJobRequestSchema,
 ]);
 
 function getBearerToken(request: NextRequest) {
@@ -289,6 +352,41 @@ function buildAtsReviewPrompt(
   ].join('\n');
 }
 
+function buildAtsReviewRetryPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof atsReviewRequestSchema>
+) {
+  const { cv } = payload;
+  const experience = cv.experience
+    .slice(0, 3)
+    .map((item, index) => `${index + 1}. ${item.role} at ${item.company}: ${item.description}`)
+    .join('\n');
+
+  const skills = cv.skills
+    .map((skill) => skill.name)
+    .filter(Boolean)
+    .slice(0, 12)
+    .join(', ');
+
+  return [
+    language === 'vi'
+      ? 'Chỉ trả về đúng JSON hợp lệ, không markdown, không text thừa.'
+      : 'Return valid JSON only. No markdown. No extra text.',
+    language === 'vi'
+      ? '{"score":number,"strengths":string[],"gaps":string[],"keywordsMissing":string[],"recommendations":string[]}'
+      : '{"score":number,"strengths":string[],"gaps":string[],"keywordsMissing":string[],"recommendations":string[]}',
+    `- Target job: ${cv.targetJob || 'N/A'}`,
+    `- Target company: ${cv.targetCompany || 'N/A'}`,
+    `- Job description:\n${cv.jobDescription || 'N/A'}`,
+    `- Summary:\n${cv.summary || 'N/A'}`,
+    `- Skills: ${skills || 'N/A'}`,
+    `- Experience:\n${experience || 'N/A'}`,
+    language === 'vi'
+      ? 'Score từ 0 đến 100. Mỗi mảng nên có 2-5 ý ngắn, rõ ràng.'
+      : 'Score must be 0-100. Each array should contain 2-5 concise items.',
+  ].join('\n\n');
+}
+
 function buildCoverLetterPrompt(
   language: 'vi' | 'en',
   payload: z.infer<typeof coverLetterRequestSchema>
@@ -325,14 +423,231 @@ function buildCoverLetterPrompt(
   ].join('\n');
 }
 
+function buildTailorCvForJobPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof tailorCvForJobRequestSchema>
+) {
+  const { cv } = payload;
+  const skills = cv.skills
+    .map((skill) => skill.name)
+    .filter(Boolean)
+    .join(', ');
+
+  const experience = cv.experience
+    .map((item, index) => {
+      const timeline = item.current ? `${item.from} - Present` : `${item.from} - ${item.to}`;
+      return `${index}. ${item.role} at ${item.company} (${timeline})\nCurrent description:\n${item.description || 'N/A'}`;
+    })
+    .join('\n\n');
+
+  const education = cv.education
+    .slice(0, 3)
+    .map((item) => [item.degree, item.field, item.school].filter(Boolean).join(' - '))
+    .filter(Boolean)
+    .join('\n');
+
+  return [
+    language === 'vi'
+      ? 'Bạn là chuyên gia tối ưu CV theo job cụ thể. Chỉ trả về JSON hợp lệ duy nhất, không markdown, không giải thích.'
+      : 'You are a resume tailoring expert. Return valid JSON only with no markdown or explanation.',
+    '',
+    language === 'vi'
+      ? 'Hãy đề xuất cách tối ưu CV này cho vị trí mục tiêu, nhưng không bịa dữ liệu.'
+      : 'Suggest how to tailor this resume for the target job without inventing facts.',
+    '',
+    `- Full name: ${cv.personalInfo.fullName || 'N/A'}`,
+    `- Current title: ${cv.personalInfo.jobTitle || 'N/A'}`,
+    `- CV title: ${cv.title || 'N/A'}`,
+    `- Current summary:\n${cv.summary || 'N/A'}`,
+    `- Target job: ${cv.targetJob || 'N/A'}`,
+    `- Target company: ${cv.targetCompany || 'N/A'}`,
+    `- Job description:\n${cv.jobDescription || 'N/A'}`,
+    `- Skills: ${skills || 'N/A'}`,
+    education ? `- Education:\n${education}` : '- Education: N/A',
+    experience ? `- Experience:\n${experience}` : '- Experience: N/A',
+    '',
+    language === 'vi'
+      ? 'Trả về đúng JSON theo schema: {"improvedSummary":string,"suggestedSkillsOrder":string[],"improvedExperienceBullets":[{"experienceIndex":number,"role":string,"company":string,"bullets":string[]}],"keywordsMissing":string[],"recommendations":string[]}.'
+      : 'Return JSON with this exact schema: {"improvedSummary":string,"suggestedSkillsOrder":string[],"improvedExperienceBullets":[{"experienceIndex":number,"role":string,"company":string,"bullets":string[]}],"keywordsMissing":string[],"recommendations":string[]}.',
+    language === 'vi'
+      ? 'Chỉ dùng skill đã có sẵn trong CV cho suggestedSkillsOrder. Mỗi bullets array nên có 2-5 gạch đầu dòng ngắn. experienceIndex phải trùng với index đã cho.'
+      : 'Use only skills already present in the resume for suggestedSkillsOrder. Each bullets array should contain 2-5 concise bullets. experienceIndex must match the provided indexes.',
+  ].join('\n');
+}
+
+function buildTailorCvForJobRetryPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof tailorCvForJobRequestSchema>
+) {
+  const { cv } = payload;
+  const skills = cv.skills.map((skill) => skill.name).filter(Boolean).join(', ');
+  const experience = cv.experience
+    .map((item, index) => `${index}. ${item.role} at ${item.company}: ${item.description || 'N/A'}`)
+    .join('\n');
+
+  return [
+    language === 'vi'
+      ? 'Chỉ trả về JSON hợp lệ, không markdown, không text thừa.'
+      : 'Return valid JSON only. No markdown. No extra text.',
+    '{"improvedSummary":string,"suggestedSkillsOrder":string[],"improvedExperienceBullets":[{"experienceIndex":number,"role":string,"company":string,"bullets":string[]}],"keywordsMissing":string[],"recommendations":string[]}',
+    `- Target job: ${cv.targetJob || 'N/A'}`,
+    `- Target company: ${cv.targetCompany || 'N/A'}`,
+    `- Job description:\n${cv.jobDescription || 'N/A'}`,
+    `- Current summary:\n${cv.summary || 'N/A'}`,
+    `- Skills: ${skills || 'N/A'}`,
+    `- Experience:\n${experience || 'N/A'}`,
+    language === 'vi'
+      ? 'Chỉ dùng dữ liệu có sẵn. Không bịa. suggestedSkillsOrder chỉ gồm skill hiện có.'
+      : 'Use only existing resume data. Do not invent facts. suggestedSkillsOrder must contain only existing skills.',
+  ].join('\n\n');
+}
+
+function buildFresherSummaryPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof fresherSummaryRequestSchema>
+) {
+  const { profile } = payload;
+
+  return [
+    language === 'vi'
+      ? 'Bạn là chuyên gia viết CV cho sinh viên/fresher. Chỉ trả về JSON hợp lệ, không markdown, không giải thích.'
+      : 'You are a resume writer for students and freshers. Return valid JSON only with no markdown or explanation.',
+    '',
+    language === 'vi'
+      ? 'Viết đoạn summary CV 3-5 câu, chuyên nghiệp, tự tin nhưng trung thực.'
+      : 'Write a 3-5 sentence CV summary that sounds professional, confident, and truthful.',
+    `- Target job: ${profile.targetJob || 'N/A'}`,
+    `- Field of study: ${profile.fieldOfStudy || 'N/A'}`,
+    `- Project or activity title: ${profile.itemName || 'N/A'}`,
+    `- Role: ${profile.role || 'N/A'}`,
+    `- Technologies/skills: ${profile.technologies.join(', ') || 'N/A'}`,
+    `- Achievements/results: ${profile.achievements || 'N/A'}`,
+    '',
+    language === 'vi'
+      ? 'Không bịa số liệu. Nếu thiếu thành tích định lượng, dùng wording trung tính. Trả về JSON: {"summary":string}.'
+      : 'Do not invent metrics. If quantified outcomes are missing, use neutral wording. Return JSON: {"summary":string}.',
+  ].join('\n');
+}
+
+function buildFresherSummaryRetryPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof fresherSummaryRequestSchema>
+) {
+  const { profile } = payload;
+
+  return [
+    language === 'vi'
+      ? 'Chỉ trả về JSON hợp lệ, không markdown, không text thừa.'
+      : 'Return valid JSON only. No markdown. No extra text.',
+    '{"summary":string}',
+    `- Target job: ${profile.targetJob || 'N/A'}`,
+    `- Field of study: ${profile.fieldOfStudy || 'N/A'}`,
+    `- Skills: ${profile.technologies.join(', ') || 'N/A'}`,
+    `- Achievements: ${profile.achievements || 'N/A'}`,
+    language === 'vi'
+      ? 'Summary phải dài 3-5 câu, trung thực, không bịa số liệu.'
+      : 'Summary must be 3-5 sentences, truthful, and must not invent metrics.',
+  ].join('\n\n');
+}
+
+function buildProjectBulletsPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof generateProjectBulletsRequestSchema>
+) {
+  const { project } = payload;
+
+  return [
+    language === 'vi'
+      ? 'Bạn là chuyên gia viết bullet CV cho sinh viên/fresher. Chỉ trả về JSON hợp lệ, không markdown, không giải thích.'
+      : 'You are a resume bullet writer for students and freshers. Return valid JSON only with no markdown or explanation.',
+    '',
+    language === 'vi'
+      ? 'Viết 3-5 bullet CV ngắn, rõ, chuyên nghiệp cho mục Project.'
+      : 'Write 3-5 short, clear, professional CV bullets for a Project section.',
+    `- Target job: ${project.targetJob || 'N/A'}`,
+    `- Field of study: ${project.fieldOfStudy || 'N/A'}`,
+    `- Project name: ${project.itemName || 'N/A'}`,
+    `- Role: ${project.role || 'N/A'}`,
+    `- Technologies/skills: ${project.technologies.join(', ') || 'N/A'}`,
+    `- Achievements/results: ${project.achievements || 'N/A'}`,
+    '',
+    language === 'vi'
+      ? 'Mỗi bullet bắt đầu bằng động từ mạnh. Không bịa số liệu. Nếu thiếu kết quả định lượng, dùng wording trung tính. Trả về JSON: {"bullets":string[]}.'
+      : 'Each bullet must start with a strong action verb. Do not invent metrics. If quantified outcomes are missing, use neutral wording. Return JSON: {"bullets":string[]}.',
+  ].join('\n');
+}
+
+function buildProjectBulletsRetryPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof generateProjectBulletsRequestSchema>
+) {
+  const { project } = payload;
+
+  return [
+    language === 'vi'
+      ? 'Chỉ trả về JSON hợp lệ, không markdown, không text thừa.'
+      : 'Return valid JSON only. No markdown. No extra text.',
+    '{"bullets":string[]}',
+    `- Project name: ${project.itemName || 'N/A'}`,
+    `- Role: ${project.role || 'N/A'}`,
+    `- Technologies: ${project.technologies.join(', ') || 'N/A'}`,
+    `- Achievements: ${project.achievements || 'N/A'}`,
+    language === 'vi'
+      ? 'Trả về đúng 3-5 bullet, trung tính nếu thiếu số liệu.'
+      : 'Return exactly 3-5 bullets and use neutral wording if metrics are missing.',
+  ].join('\n\n');
+}
+
+function buildActivityBulletsPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof convertActivitiesToCvBulletsRequestSchema>
+) {
+  const { activity } = payload;
+
+  return [
+    language === 'vi'
+      ? 'Bạn là chuyên gia chuyển hoạt động/CLB/part-time thành bullet CV. Chỉ trả về JSON hợp lệ, không markdown, không giải thích.'
+      : 'You are a resume writer who converts activities, clubs, and part-time work into CV bullets. Return valid JSON only with no markdown or explanation.',
+    '',
+    language === 'vi'
+      ? 'Viết 3-5 bullet CV ngắn, chuyên nghiệp cho mục Activities.'
+      : 'Write 3-5 short professional CV bullets for an Activities section.',
+    `- Target job: ${activity.targetJob || 'N/A'}`,
+    `- Field of study: ${activity.fieldOfStudy || 'N/A'}`,
+    `- Activity name: ${activity.itemName || 'N/A'}`,
+    `- Role: ${activity.role || 'N/A'}`,
+    `- Technologies/skills: ${activity.technologies.join(', ') || 'N/A'}`,
+    `- Achievements/results: ${activity.achievements || 'N/A'}`,
+    '',
+    language === 'vi'
+      ? 'Nhấn mạnh trách nhiệm, kỹ năng, phối hợp và kết quả thực tế. Không bịa số liệu. Nếu thiếu định lượng, dùng wording trung tính. Trả về JSON: {"bullets":string[]}.'
+      : 'Emphasize responsibilities, skills, collaboration, and concrete outcomes. Do not invent metrics. If quantified results are missing, use neutral wording. Return JSON: {"bullets":string[]}.',
+  ].join('\n');
+}
+
+function buildActivityBulletsRetryPrompt(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof convertActivitiesToCvBulletsRequestSchema>
+) {
+  const { activity } = payload;
+
+  return [
+    language === 'vi'
+      ? 'Chỉ trả về JSON hợp lệ, không markdown, không text thừa.'
+      : 'Return valid JSON only. No markdown. No extra text.',
+    '{"bullets":string[]}',
+    `- Activity name: ${activity.itemName || 'N/A'}`,
+    `- Role: ${activity.role || 'N/A'}`,
+    `- Skills: ${activity.technologies.join(', ') || 'N/A'}`,
+    `- Achievements: ${activity.achievements || 'N/A'}`,
+    language === 'vi'
+      ? 'Trả về đúng 3-5 bullet, không bịa số liệu.'
+      : 'Return exactly 3-5 bullets and do not invent metrics.',
+  ].join('\n\n');
+}
+
 async function generateText(prompt: string) {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-
-  if (!apiKey) {
-    throw new Error('Gemini API key is missing.');
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
   const response = await ai.models.generateContent({
     model: 'gemini-2.0-flash',
     contents: prompt,
@@ -341,14 +656,253 @@ async function generateText(prompt: string) {
   return sanitizeText(response.text);
 }
 
-function parseJsonResponse<T>(rawText: string): T {
-  const cleaned = rawText
-    .replace(/^```json/i, '')
-    .replace(/^```/i, '')
-    .replace(/```$/i, '')
-    .trim();
+class AtsInvalidFormatError extends Error {
+  code = 'ATS_INVALID_FORMAT' as const;
 
-  return JSON.parse(cleaned) as T;
+  constructor() {
+    super('AI trả về định dạng ATS không hợp lệ. Vui lòng thử lại.');
+  }
+}
+
+function logAtsReviewDebug(stage: 'primary' | 'retry', rawText: string) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.debug(`[atsReview:${stage}] raw response`, rawText);
+  }
+}
+
+function parseAtsReviewResponse(rawText: string) {
+  const parsed = safeParseJson(rawText);
+  if (!parsed.success) {
+    return {
+      success: false as const,
+      reason: 'json',
+    };
+  }
+
+  const validated = validateAtsReviewResponse(parsed.data);
+  if (!validated.success) {
+    return {
+      success: false as const,
+      reason: 'schema',
+    };
+  }
+
+  return {
+    success: true as const,
+    review: validated.data,
+  };
+}
+
+async function generateAtsReview(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof atsReviewRequestSchema>
+) {
+  const primaryRaw = await generateText(buildAtsReviewPrompt(language, payload));
+  const primaryParsed = parseAtsReviewResponse(primaryRaw);
+  if (primaryParsed.success) {
+    return primaryParsed.review;
+  }
+
+  logAtsReviewDebug('primary', primaryRaw);
+
+  const retryRaw = await generateText(buildAtsReviewRetryPrompt(language, payload));
+  const retryParsed = parseAtsReviewResponse(retryRaw);
+  if (retryParsed.success) {
+    return retryParsed.review;
+  }
+
+  logAtsReviewDebug('retry', retryRaw);
+  throw new AtsInvalidFormatError();
+}
+
+class TailorCvInvalidFormatError extends Error {
+  code = 'TAILOR_INVALID_FORMAT' as const;
+
+  constructor() {
+    super('AI trả về định dạng Tailor CV không hợp lệ. Vui lòng thử lại.');
+  }
+}
+
+function logTailorCvDebug(stage: 'primary' | 'retry', rawText: string) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.debug(`[tailorCvForJob:${stage}] raw response`, rawText);
+  }
+}
+
+function parseTailorCvForJobResponse(rawText: string) {
+  const parsed = safeParseJson(rawText);
+  if (!parsed.success) {
+    return {
+      success: false as const,
+      reason: 'json',
+    };
+  }
+
+  const validated = validateTailorCvForJobResponse(parsed.data);
+  if (!validated.success) {
+    return {
+      success: false as const,
+      reason: 'schema',
+    };
+  }
+
+  return {
+    success: true as const,
+    tailor: validated.data,
+  };
+}
+
+async function generateTailorCvForJob(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof tailorCvForJobRequestSchema>
+) {
+  const primaryRaw = await generateText(buildTailorCvForJobPrompt(language, payload));
+  const primaryParsed = parseTailorCvForJobResponse(primaryRaw);
+  if (primaryParsed.success) {
+    return primaryParsed.tailor;
+  }
+
+  logTailorCvDebug('primary', primaryRaw);
+
+  const retryRaw = await generateText(buildTailorCvForJobRetryPrompt(language, payload));
+  const retryParsed = parseTailorCvForJobResponse(retryRaw);
+  if (retryParsed.success) {
+    return retryParsed.tailor;
+  }
+
+  logTailorCvDebug('retry', retryRaw);
+  throw new TailorCvInvalidFormatError();
+}
+
+class StudentAiInvalidFormatError extends Error {
+  constructor(
+    public code:
+      | 'FRESHER_SUMMARY_INVALID_FORMAT'
+      | 'PROJECT_BULLETS_INVALID_FORMAT'
+      | 'ACTIVITY_BULLETS_INVALID_FORMAT',
+    message: string
+  ) {
+    super(message);
+  }
+}
+
+function logStudentAiDebug(
+  action: 'fresherSummary' | 'generateProjectBullets' | 'convertActivitiesToCvBullets',
+  stage: 'primary' | 'retry',
+  rawText: string
+) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.debug(`[${action}:${stage}] raw response`, rawText);
+  }
+}
+
+function parseFresherSummaryResponse(rawText: string) {
+  const parsed = safeParseJson(rawText);
+  if (!parsed.success) {
+    return { success: false as const };
+  }
+
+  const validated = validateFresherSummaryResponse(parsed.data);
+  if (!validated.success) {
+    return { success: false as const };
+  }
+
+  return {
+    success: true as const,
+    summary: validated.data.summary,
+  };
+}
+
+function parseStudentBulletsResponse(rawText: string) {
+  const parsed = safeParseJson(rawText);
+  if (!parsed.success) {
+    return { success: false as const };
+  }
+
+  const validated = validateStudentBulletsResponse(parsed.data);
+  if (!validated.success) {
+    return { success: false as const };
+  }
+
+  return {
+    success: true as const,
+    bullets: validated.data.bullets,
+  };
+}
+
+async function generateFresherSummary(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof fresherSummaryRequestSchema>
+) {
+  const primaryRaw = await generateText(buildFresherSummaryPrompt(language, payload));
+  const primaryParsed = parseFresherSummaryResponse(primaryRaw);
+  if (primaryParsed.success) {
+    return primaryParsed.summary;
+  }
+
+  logStudentAiDebug('fresherSummary', 'primary', primaryRaw);
+
+  const retryRaw = await generateText(buildFresherSummaryRetryPrompt(language, payload));
+  const retryParsed = parseFresherSummaryResponse(retryRaw);
+  if (retryParsed.success) {
+    return retryParsed.summary;
+  }
+
+  logStudentAiDebug('fresherSummary', 'retry', retryRaw);
+  throw new StudentAiInvalidFormatError(
+    'FRESHER_SUMMARY_INVALID_FORMAT',
+    'AI trả về định dạng fresher summary không hợp lệ. Vui lòng thử lại.'
+  );
+}
+
+async function generateProjectBullets(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof generateProjectBulletsRequestSchema>
+) {
+  const primaryRaw = await generateText(buildProjectBulletsPrompt(language, payload));
+  const primaryParsed = parseStudentBulletsResponse(primaryRaw);
+  if (primaryParsed.success) {
+    return primaryParsed.bullets;
+  }
+
+  logStudentAiDebug('generateProjectBullets', 'primary', primaryRaw);
+
+  const retryRaw = await generateText(buildProjectBulletsRetryPrompt(language, payload));
+  const retryParsed = parseStudentBulletsResponse(retryRaw);
+  if (retryParsed.success) {
+    return retryParsed.bullets;
+  }
+
+  logStudentAiDebug('generateProjectBullets', 'retry', retryRaw);
+  throw new StudentAiInvalidFormatError(
+    'PROJECT_BULLETS_INVALID_FORMAT',
+    'AI trả về định dạng project bullets không hợp lệ. Vui lòng thử lại.'
+  );
+}
+
+async function generateActivityBullets(
+  language: 'vi' | 'en',
+  payload: z.infer<typeof convertActivitiesToCvBulletsRequestSchema>
+) {
+  const primaryRaw = await generateText(buildActivityBulletsPrompt(language, payload));
+  const primaryParsed = parseStudentBulletsResponse(primaryRaw);
+  if (primaryParsed.success) {
+    return primaryParsed.bullets;
+  }
+
+  logStudentAiDebug('convertActivitiesToCvBullets', 'primary', primaryRaw);
+
+  const retryRaw = await generateText(buildActivityBulletsRetryPrompt(language, payload));
+  const retryParsed = parseStudentBulletsResponse(retryRaw);
+  if (retryParsed.success) {
+    return retryParsed.bullets;
+  }
+
+  logStudentAiDebug('convertActivitiesToCvBullets', 'retry', retryRaw);
+  throw new StudentAiInvalidFormatError(
+    'ACTIVITY_BULLETS_INVALID_FORMAT',
+    'AI trả về định dạng activity bullets không hợp lệ. Vui lòng thử lại.'
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -362,10 +916,35 @@ export async function POST(request: NextRequest) {
     const adminDb = getAdminDb();
     const decodedToken = await adminAuth.verifyIdToken(token);
     const userRef = adminDb.collection('users').doc(decodedToken.uid);
-    const userSnap = await userRef.get();
+    let userSnap = await userRef.get();
 
     if (!userSnap.exists) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      try {
+        await ensureUserDocumentWithAdmin(adminDb, decodedToken.uid, {
+          email: decodedToken.email,
+          displayName: decodedToken.name,
+          photoURL: decodedToken.picture,
+        });
+        userSnap = await userRef.get();
+      } catch {
+        return NextResponse.json(
+          {
+            error: 'USER_DOC_MISSING',
+            message: 'Thiếu hồ sơ người dùng trong Firestore.',
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    if (!userSnap.exists) {
+      return NextResponse.json(
+        {
+          error: 'USER_DOC_MISSING',
+          message: 'Thiếu hồ sơ người dùng trong Firestore.',
+        },
+        { status: 500 }
+      );
     }
 
     const user = userSnap.data() as { plan?: 'free' | 'premium'; isActive?: boolean };
@@ -411,25 +990,30 @@ export async function POST(request: NextRequest) {
       responsePayload = {
         text: await generateText(buildSummaryPrompt(body.language, plan, body)),
       };
+    } else if (body.action === 'fresherSummary') {
+      responsePayload = {
+        summary: await generateFresherSummary(body.language, body),
+      };
     } else if (body.action === 'rewriteExperience') {
       responsePayload = {
         text: await generateText(buildExperiencePrompt(body.language, body)),
       };
     } else if (body.action === 'atsReview') {
-      const raw = await generateText(buildAtsReviewPrompt(body.language, body));
-      try {
-        responsePayload = {
-          review: parseJsonResponse<{
-            score: number;
-            strengths: string[];
-            gaps: string[];
-            keywordsMissing: string[];
-            recommendations: string[];
-          }>(raw),
-        };
-      } catch {
-        throw new Error('AI returned an invalid ATS review format.');
-      }
+      responsePayload = {
+        review: await generateAtsReview(body.language, body),
+      };
+    } else if (body.action === 'generateProjectBullets') {
+      responsePayload = {
+        bullets: await generateProjectBullets(body.language, body),
+      };
+    } else if (body.action === 'convertActivitiesToCvBullets') {
+      responsePayload = {
+        bullets: await generateActivityBullets(body.language, body),
+      };
+    } else if (body.action === 'tailorCvForJob') {
+      responsePayload = {
+        tailor: await generateTailorCvForJob(body.language, body),
+      };
     } else {
       responsePayload = {
         text: await generateText(buildCoverLetterPrompt(body.language, body)),
@@ -454,6 +1038,40 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Invalid request', issues: error.flatten() }, { status: 400 });
+    }
+
+    if (error instanceof EnvValidationError) {
+      return NextResponse.json(error.toApiError(), { status: error.status });
+    }
+
+    if (error instanceof AtsInvalidFormatError) {
+      return NextResponse.json(
+        {
+          error: error.code,
+          message: error.message,
+        },
+        { status: 502 }
+      );
+    }
+
+    if (error instanceof TailorCvInvalidFormatError) {
+      return NextResponse.json(
+        {
+          error: error.code,
+          message: error.message,
+        },
+        { status: 502 }
+      );
+    }
+
+    if (error instanceof StudentAiInvalidFormatError) {
+      return NextResponse.json(
+        {
+          error: error.code,
+          message: error.message,
+        },
+        { status: 502 }
+      );
     }
 
     const message = error instanceof Error ? error.message : 'Unknown AI error';

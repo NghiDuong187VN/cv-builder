@@ -57,6 +57,7 @@ export default function ViewCVPage() {
     if (!cv) return;
     const expected = cv.sharing?.passcode || '';
     if (enteredPasscode.trim() === expected) {
+      window.sessionStorage.setItem(`cvflow-share-passcode:${cv.cvId}`, enteredPasscode.trim());
       setAuthorized(true);
       toast.success('Xác thực thành công');
     } else {
@@ -119,7 +120,7 @@ export default function ViewCVPage() {
           <div style={{ width: '1px', height: '16px', background: '#cbd5e1' }} />
           <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>{cv.title}</span>
         </div>
-        <ExportButton cvId={cv.cvId} cvTitle={cv.title} />
+        <ExportButton cvTitle={cv.title} printPath={`/cv/${cv.shareSlug || cv.cvId}/print`} />
       </div>
 
       <div style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
@@ -130,4 +131,3 @@ export default function ViewCVPage() {
     </div>
   );
 }
-

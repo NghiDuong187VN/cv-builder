@@ -4,8 +4,6 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Sparkles, Play } from 'lucide-react';
 
-const wordList = ['Ấn Tượng', 'Chuyên Nghiệp', 'Cá Nhân Hóa', 'Nổi Bật', 'Khác Biệt'];
-
 export default function HeroSection() {
   return (
     <section
@@ -113,7 +111,7 @@ export default function HeroSection() {
             lineHeight: 1.7,
           }}
         >
-          Nền tảng tạo CV & Profile online <strong style={{ color: 'white' }}>cá nhân hóa mạnh nhất</strong> cho học sinh, sinh viên và người đi làm.
+          Nền tảng tạo CV &amp; Profile online <strong style={{ color: 'white' }}>cá nhân hóa mạnh nhất</strong> cho học sinh, sinh viên và người đi làm.
           Tạo trong <strong style={{ color: '#fde68a' }}>5 phút</strong>, chia sẻ ngay.
         </motion.p>
 
@@ -122,7 +120,12 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}
+          style={{
+            display: 'flex',
+            gap: '16px',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+          }}
         >
           <Link
             href="/cv/new"
@@ -187,8 +190,8 @@ export default function HeroSection() {
 
         {/* Stats */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.7 }}
           style={{
             display: 'flex',
@@ -199,13 +202,13 @@ export default function HeroSection() {
           }}
         >
           {[
-            { value: '10,000+', label: 'CV đã tạo' },
-            { value: '50+', label: 'Mẫu CV đẹp' },
-            { value: '4.9⭐', label: 'Đánh giá' },
+            { value: '15K+', label: 'CV đã tạo' },
+            { value: '65+', label: 'Mẫu CV đẹp' },
+            { value: '4.95⭐', label: 'Đánh giá' },
           ].map(({ value, label }) => (
             <div key={label} style={{ textAlign: 'center' }}>
-              <p style={{ fontWeight: 800, fontSize: '1.6rem', color: 'white' }}>{value}</p>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>{label}</p>
+              <p style={{ fontWeight: 800, fontSize: '1.8rem', color: 'white', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>{value}</p>
+              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', marginTop: '2px' }}>{label}</p>
             </div>
           ))}
         </motion.div>

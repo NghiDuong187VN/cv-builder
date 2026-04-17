@@ -2,47 +2,32 @@ import { App, cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
-function readEnv(name: string) {
-  const value = process.env[name];
-  return typeof value === 'string' ? value.trim() : '';
-}
+import { getFirebaseAdminEnv } from '@/lib/env/server';
 
-function getPrivateKey() {
-  const key = readEnv('FIREBASE_PRIVATE_KEY');
-  if (!key) return '';
-  const unwrappedKey =
-    key.startsWith('"') && key.endsWith('"')
-      ? key.slice(1, -1)
-      : key;
-
-  return unwrappedKey.replace(/\\n/g, '\n').trim();
-}
+let adminApp: App | null = null;
 
 function getAdminApp(): App {
-  if (getApps().length) {
-    return getApps()[0]!;
+  if (adminApp) {
+    return adminApp;
   }
 
-  const projectId = readEnv('FIREBASE_PROJECT_ID') || readEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID');
-  const clientEmail = readEnv('FIREBASE_CLIENT_EMAIL');
-  const privateKey = getPrivateKey();
-  const missingVars = [
-    !projectId && 'FIREBASE_PROJECT_ID',
-    !clientEmail && 'FIREBASE_CLIENT_EMAIL',
-    !privateKey && 'FIREBASE_PRIVATE_KEY',
-  ].filter(Boolean);
-
-  if (missingVars.length) {
-    throw new Error(`Firebase Admin env vars are missing: ${missingVars.join(', ')}`);
+  const existingApp = getApps()[0];
+  if (existingApp) {
+    adminApp = existingApp;
+    return existingApp;
   }
 
-  return initializeApp({
+  const env = getFirebaseAdminEnv();
+
+  adminApp = initializeApp({
     credential: cert({
-      projectId,
-      clientEmail,
-      privateKey,
+      projectId: env.FIREBASE_PROJECT_ID,
+      clientEmail: env.FIREBASE_CLIENT_EMAIL,
+      privateKey: env.FIREBASE_PRIVATE_KEY,
     }),
   });
+
+  return adminApp;
 }
 
 export function getAdminAuth() {
@@ -52,3 +37,5 @@ export function getAdminAuth() {
 export function getAdminDb() {
   return getFirestore(getAdminApp());
 }
+
+export { getAdminApp };

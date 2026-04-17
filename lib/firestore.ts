@@ -13,7 +13,7 @@ import {
   increment,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { CV, Profile, Template, CVSection, CoverLetter, PersonalInfo } from './types';
+import { CV, Profile, Template, CVSection, CoverLetter, PersonalInfo, CvAiHistoryRecord } from './types';
 
 function toMillis(value: unknown): number {
   if (!value) return 0;
@@ -28,6 +28,12 @@ function toMillis(value: unknown): number {
 // ─── Helpers ─────────────────────────────────────────────────
 function generateSlug(): string {
   return Math.random().toString(36).substring(2, 10);
+}
+
+function removeUndefined<T extends Record<string, unknown>>(input: T): T {
+  return Object.fromEntries(
+    Object.entries(input).filter(([, value]) => value !== undefined)
+  ) as T;
 }
 
 const DEFAULT_PERSONAL_INFO: PersonalInfo = {
@@ -166,6 +172,52 @@ export async function incrementCVView(cvId: string): Promise<void> {
 }
 export async function incrementCVDownload(cvId: string): Promise<void> {
   await updateDoc(doc(db, 'cvs', cvId), { downloadCount: increment(1) });
+}
+
+export async function createCvAiHistory(
+  cvId: string,
+  data: Omit<CvAiHistoryRecord, 'id' | 'createdAt'>
+): Promise<string> {
+  const ref = doc(collection(db, 'cvs', cvId, 'aiHistory'));
+  await setDoc(ref, {
+    ...removeUndefined({
+      action: data.action,
+      accepted: data.accepted,
+      oldText: data.oldText,
+      newText: data.newText,
+      targetJob: data.targetJob,
+      targetCompany: data.targetCompany,
+      metadata: data.metadata,
+    }),
+    createdAt: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+export async function updateCvAiHistory(
+  cvId: string,
+  historyId: string,
+  data: Partial<Omit<CvAiHistoryRecord, 'id' | 'createdAt'>>
+): Promise<void> {
+  await updateDoc(
+    doc(db, 'cvs', cvId, 'aiHistory', historyId),
+    removeUndefined({
+      action: data.action,
+      accepted: data.accepted,
+      oldText: data.oldText,
+      newText: data.newText,
+      targetJob: data.targetJob,
+      targetCompany: data.targetCompany,
+      metadata: data.metadata,
+    })
+  );
+}
+
+export async function getCvAiHistory(cvId: string): Promise<CvAiHistoryRecord[]> {
+  const snap = await getDocs(collection(db, 'cvs', cvId, 'aiHistory'));
+  const records = snap.docs.map((entry) => ({ ...entry.data(), id: entry.id } as CvAiHistoryRecord));
+
+  return records.sort((a, b) => toMillis(b.createdAt) - toMillis(a.createdAt));
 }
 
 // ─── Cover Letters ────────────────────────────────────────────

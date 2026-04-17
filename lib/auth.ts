@@ -1,13 +1,15 @@
 import {
   GoogleAuthProvider,
+  onAuthStateChanged,
   signInWithPopup,
   signOut as firebaseSignOut,
-  onAuthStateChanged,
   User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+
 import { auth, db } from './firebase';
 import { User } from './types';
+import { ensureUserDocument } from './userDocument';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -16,38 +18,30 @@ export async function signInWithGoogle(): Promise<FirebaseUser | null> {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
-    // Create or update user doc in Firestore
-    const userRef = doc(db, 'users', user.uid);
-    const userSnap = await getDoc(userRef);
+    await ensureUserDocument(user.uid, {
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+    });
 
-    if (!userSnap.exists()) {
-      // New user — create document
-      const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').map(e => e.trim());
-      const isAdmin = adminEmails.includes(user.email || '');
-
-      await setDoc(userRef, {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        username: generateUsername(user.displayName || user.email || ''),
-        plan: 'free',
-        planExpiry: null,
-        isAdmin,
-        isActive: true,
-        settings: { language: 'vi', theme: 'light' },
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-    } else {
-      // Update last login
-      await setDoc(userRef, { updatedAt: serverTimestamp() }, { merge: true });
-    }
+    await setDoc(doc(db, 'users', user.uid), { updatedAt: serverTimestamp() }, { merge: true });
 
     return user;
-  } catch (error) {
-    console.error('Google Sign-In error:', error);
-    return null;
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string };
+    console.error('Google Sign-In error:', err.code, err.message);
+
+    if (err.code === 'auth/popup-blocked') {
+      throw new Error('Popup bị trình duyệt chặn. Vui lòng cho phép popup cho trang này.');
+    } else if (err.code === 'auth/popup-closed-by-user') {
+      throw new Error('Bạn đã đóng cửa sổ đăng nhập. Vui lòng thử lại.');
+    } else if (err.code === 'auth/unauthorized-domain') {
+      throw new Error('Domain chưa được phép. Hãy thêm domain vào Firebase Authorized Domains.');
+    } else if (err.code === 'auth/cancelled-popup-request') {
+      return null;
+    }
+
+    throw new Error(err.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
   }
 }
 
@@ -63,16 +57,4 @@ export async function getUserData(uid: string): Promise<User | null> {
 
 export function onAuthChange(callback: (user: FirebaseUser | null) => void) {
   return onAuthStateChanged(auth, callback);
-}
-
-function generateUsername(name: string): string {
-  const base = name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/[^a-z0-9]/g, '')
-    .slice(0, 15);
-  const suffix = Math.floor(Math.random() * 9999);
-  return `${base}${suffix}`;
 }

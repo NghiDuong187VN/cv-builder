@@ -241,6 +241,28 @@ export interface CoverLetter {
   updatedAt: Date;
 }
 
+export type CvAiHistoryAction =
+  | 'generateSummary'
+  | 'fresherSummary'
+  | 'rewriteExperience'
+  | 'atsReview'
+  | 'generateCoverLetter'
+  | 'generateProjectBullets'
+  | 'convertActivitiesToCvBullets'
+  | 'tailorCvForJob';
+
+export interface CvAiHistoryRecord {
+  id: string;
+  action: CvAiHistoryAction;
+  createdAt: Date;
+  accepted: boolean;
+  oldText: string;
+  newText: string;
+  targetJob?: string;
+  targetCompany?: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface AdminStats {
   totalUsers: number;
   totalCVs: number;

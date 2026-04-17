@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User as FirebaseUser } from 'firebase/auth';
 import { onAuthChange, getUserData } from '@/lib/auth';
 import { User } from '@/lib/types';
+import { ensureUserDocument } from '@/lib/userDocument';
 
 interface AuthContextValue {
   firebaseUser: FirebaseUser | null;
@@ -28,8 +29,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthChange(async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
-        const userData = await getUserData(fbUser.uid);
-        setUser(userData);
+        try {
+          await ensureUserDocument(fbUser.uid, {
+            email: fbUser.email,
+            displayName: fbUser.displayName,
+            photoURL: fbUser.photoURL,
+          });
+          const userData = await getUserData(fbUser.uid);
+          setUser(userData);
+        } catch (error) {
+          console.error('Failed to sync user document:', error);
+          setUser(null);
+        }
       } else {
         setUser(null);
       }

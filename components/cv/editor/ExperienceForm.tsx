@@ -10,6 +10,8 @@ interface Props {
   onChange: (data: Experience[]) => void;
   lang: 'vi' | 'en';
   aiPlan?: 'free' | 'premium';
+  canRewriteWithAi?: boolean;
+  aiStatusLoading?: boolean;
   aiLoadingIndex?: number | null;
   onRewriteWithAi?: (index: number) => void;
 }
@@ -36,6 +38,8 @@ export default function ExperienceForm({
   onChange,
   lang,
   aiPlan = 'free',
+  canRewriteWithAi = false,
+  aiStatusLoading = false,
   aiLoadingIndex = null,
   onRewriteWithAi,
 }: Props) {
@@ -159,10 +163,16 @@ export default function ExperienceForm({
               <button
                 type="button"
                 onClick={() => onRewriteWithAi?.(index)}
-                disabled={aiPlan !== 'premium' || aiLoadingIndex === index}
+                disabled={!canRewriteWithAi || aiLoadingIndex === index}
                 className="btn btn-ghost btn-sm"
-                style={{ flexShrink: 0, opacity: aiPlan === 'premium' ? 1 : 0.6 }}
-                title={aiPlan === 'premium' ? 'Viết lại mô tả bằng AI' : 'Premium only'}
+                style={{ flexShrink: 0, opacity: canRewriteWithAi ? 1 : 0.6 }}
+                title={
+                  canRewriteWithAi
+                    ? 'Viết lại mô tả bằng AI'
+                    : aiStatusLoading
+                      ? 'Đang kiểm tra quyền AI'
+                      : 'Premium only'
+                }
               >
                 {aiLoadingIndex === index ? 'Đang viết...' : 'AI viết lại'}
               </button>

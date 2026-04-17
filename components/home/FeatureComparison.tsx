@@ -21,34 +21,34 @@ interface CompareGroup {
 
 const COMPARE_GROUPS: CompareGroup[] = [
   {
-    title: 'Tao & luu CV',
+    title: 'Tạo và lưu CV',
     icon: 'CV',
     rows: [
-      { label: 'So CV co the tao', free: 'Toi da 3', premium: 'Khong gioi han' },
-      { label: 'Template co ban', free: true, premium: true },
-      { label: 'Template cao cap theo nganh', free: false, premium: true, highlight: true },
-      { label: 'Luu tu dong', free: true, premium: true },
-      { label: 'Tuy chinh sau hon cho nhieu vi tri', free: false, premium: true },
+      { label: 'Số CV có thể tạo', free: 'Tối đa 3', premium: 'Không giới hạn' },
+      { label: 'Mẫu CV cơ bản', free: true, premium: true },
+      { label: 'Mẫu cao cấp theo ngành', free: false, premium: true, highlight: true },
+      { label: 'Lưu tự động', free: true, premium: true },
+      { label: 'Tùy chỉnh sâu hơn cho nhiều vị trí', free: false, premium: true },
     ],
   },
   {
-    title: 'AI & toi uu ung tuyen',
+    title: 'AI và tối ưu ứng tuyển',
     icon: 'AI',
     rows: [
-      { label: 'Gemini tao summary co ban', free: '3 luot/ngay', premium: true, highlight: true },
-      { label: 'AI rewrite tung muc kinh nghiem', free: false, premium: true, highlight: true },
-      { label: 'ATS review: score + gap + keyword missing', free: false, premium: true, highlight: true },
-      { label: 'AI tao cover letter theo JD', free: false, premium: true, highlight: true },
-      { label: 'Nhap target job, company, job description trong editor', free: true, premium: true },
+      { label: 'Gemini tạo phần tóm tắt cơ bản', free: '3 lượt/ngày', premium: true, highlight: true },
+      { label: 'AI viết lại từng mục kinh nghiệm', free: false, premium: true, highlight: true },
+      { label: 'ATS review: điểm số, thiếu sót và từ khóa', free: false, premium: true, highlight: true },
+      { label: 'AI tạo cover letter theo JD', free: false, premium: true, highlight: true },
+      { label: 'Nhập target job, company, job description trong editor', free: true, premium: true },
     ],
   },
   {
-    title: 'Xuat ban & chia se',
+    title: 'Xuất bản và chia sẻ',
     icon: 'PDF',
     rows: [
-      { label: 'Xuat PDF', free: true, premium: true },
-      { label: 'Link chia se CV cong khai', free: true, premium: true },
-      { label: 'Ban CV sach hon de ung tuyen nghiem tuc', free: 'co ban', premium: true },
+      { label: 'Xuất PDF', free: true, premium: true },
+      { label: 'Link chia sẻ CV công khai', free: true, premium: true },
+      { label: 'Bản CV sạch hơn để ứng tuyển nghiêm túc', free: 'Cơ bản', premium: true },
     ],
   },
 ];
@@ -75,7 +75,7 @@ function CellIcon({ value }: { value: CellValue }) {
   if (value === 'limited') {
     return (
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: '9999px', border: '1px solid rgba(245,158,11,0.2)' }}>Gioi han</span>
+        <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: '9999px', border: '1px solid rgba(245,158,11,0.2)' }}>Giới hạn</span>
       </div>
     );
   }
@@ -92,9 +92,9 @@ const PLANS = [
     name: 'Free',
     gradient: 'linear-gradient(135deg, #06b6d4, #6366f1)',
     icon: Zap,
-    price: '0d',
-    period: 'mai mai',
-    cta: 'Bat dau',
+    price: '0đ',
+    period: 'mãi mãi',
+    cta: 'Bắt đầu',
     href: '/auth',
     ctaBg: 'linear-gradient(135deg, #06b6d4, #6366f1)',
   },
@@ -102,9 +102,9 @@ const PLANS = [
     name: 'Premium',
     gradient: 'linear-gradient(135deg, #f59e0b, #ec4899)',
     icon: Crown,
-    price: '79.000d',
-    period: '/thang',
-    cta: 'Nang cap',
+    price: '79.000đ',
+    period: '/tháng',
+    cta: 'Nâng cấp',
     href: '/pricing',
     ctaBg: 'linear-gradient(135deg, #f59e0b, #ec4899)',
     popular: true,
@@ -133,13 +133,13 @@ export default function FeatureComparison() {
               marginBottom: '16px',
             }}
           >
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--primary)' }}>So sanh thuc te</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--primary)' }}>So sánh thực tế</span>
           </div>
           <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 800, marginBottom: '12px' }}>
-            Goi nao <span className="gradient-text">ban duoc</span> nhat?
+            Gói nào <span className="gradient-text">bán được</span> nhất?
           </h2>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto', fontSize: '1rem' }}>
-            Bang nay chi giu nhung gi dang co that trong san pham de user thay ro gia tri nang cap.
+            Bảng này chỉ giữ những gì đang có thật trong sản phẩm để người dùng thấy rõ giá trị nâng cấp.
           </p>
         </motion.div>
 
@@ -165,7 +165,7 @@ export default function FeatureComparison() {
             }}
           >
             <div style={{ padding: '24px 28px' }}>
-              <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Tinh nang</p>
+              <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Tính năng</p>
             </div>
             {PLANS.map((plan) => (
               <div
@@ -194,7 +194,7 @@ export default function FeatureComparison() {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    Ban chay nhat
+                    Bán chạy nhất
                   </div>
                 )}
                 <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: plan.gradient, margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -264,7 +264,7 @@ export default function FeatureComparison() {
             }}
           >
             <div style={{ padding: '20px 28px' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Bat dau ngay hom nay.</p>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Bắt đầu ngay hôm nay.</p>
             </div>
             {PLANS.map((plan) => (
               <div key={plan.name} style={{ padding: '16px 12px', borderLeft: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
