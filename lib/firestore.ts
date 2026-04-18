@@ -170,7 +170,7 @@ export async function duplicateCV(cv: CV, uid: string): Promise<string> {
   const { cvId: _cvId, shareSlug: _slug, ...rest } = cv;
   return createCV(uid, {
     ...rest,
-    title: `${rest.title} (Báº£n sao)`,
+    title: `${rest.title} (Bản sao)`,
     isPublic: false,
     sharing: { mode: 'public', passcode: '' },
   });

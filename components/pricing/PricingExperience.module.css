@@ -51,6 +51,7 @@
   margin-top: 4px;
   color: var(--text-secondary);
   font-size: 0.84rem;
+  line-height: 1.55;
 }
 
 .summaryCardFree {
@@ -254,6 +255,7 @@
 .planMeta {
   font-size: 0.8rem;
   color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .planSavings {
@@ -581,6 +583,7 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 700;
+  line-height: 1.4;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -735,5 +738,25 @@
 
   .creditCustomGrid {
     grid-template-columns: 1fr;
+  }
+
+  .heroDesc,
+  .sectionHead p,
+  .planFeatureList li,
+  .creditCard p,
+  .faqAnswer {
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  .faqSummary {
+    font-size: 0.95rem;
+  }
+
+  .mobileCompareItem,
+  .pricingFooterColumn a,
+  .pricingFooterColumn li {
+    font-size: 0.84rem;
+    line-height: 1.55;
   }
 }

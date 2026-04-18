@@ -9,6 +9,7 @@ export default function ModernTemplate({ cv }: { cv: CV }) {
   const primary = cv.theme?.primaryColor || '#6366f1';
   const secondary = cv.theme?.secondaryColor || '#8b5cf6';
   const font = cv.theme?.font || 'Inter';
+  const fontStack = `${font}, "Be Vietnam Pro", "Noto Sans", "Segoe UI", Arial, sans-serif`;
   const lang = cv.language || 'vi';
   const sections = (cv.sections?.order || []) as CVSection[];
   const vis = cv.sections?.visibility || {};
@@ -26,7 +27,7 @@ export default function ModernTemplate({ cv }: { cv: CV }) {
   );
 
   return (
-    <div style={{ fontFamily: font, color: '#334155', minHeight: '297mm', background: 'white', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ fontFamily: fontStack, color: '#334155', minHeight: '297mm', background: 'white', display: 'flex', flexDirection: 'column' }}>
       {/* HEADER */}
       <div style={{ background: `linear-gradient(135deg, ${primary}, ${secondary})`, padding: '40px 40px', color: 'white', position: 'relative', overflow: 'hidden' }}>
         {/* Decorative circles */}

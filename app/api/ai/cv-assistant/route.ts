@@ -198,7 +198,7 @@ function extractBulletLines(text: string) {
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((line) => (line.startsWith('-') || line.startsWith('â€¢') ? line : `- ${line}`));
+    .map((line) => (line.startsWith('-') || line.startsWith('•') ? line : `- ${line}`));
 }
 
 async function saveAiHistoryRecord(params: {
@@ -250,14 +250,14 @@ function buildSummaryPrompt(
 
   const system =
     language === 'vi'
-      ? 'Báº¡n lÃ  chuyÃªn gia viáº¿t CV. Chá»‰ tráº£ vá» Ä‘Ãºng Ä‘oáº¡n tÃ³m táº¯t cuá»‘i cÃ¹ng, khÃ´ng thÃªm tiÃªu Ä‘á», khÃ´ng markdown, khÃ´ng giáº£i thÃ­ch.'
+      ? 'Bạn là chuyên gia viết CV. Chỉ trả về đúng đoạn tóm tắt cuối cùng, không thêm tiêu đề, không markdown, không giải thích.'
       : 'You are a resume writing expert. Return only the final summary paragraph with no heading, markdown, or explanation.';
 
   const goal =
     language === 'vi'
       ? plan === 'free'
-        ? 'Viáº¿t Ä‘oáº¡n summary CV 3-4 cÃ¢u, rÃµ rÃ ng, trung tÃ­nh, dá»… dÃ¹ng ngay.'
-        : 'Viáº¿t Ä‘oáº¡n summary CV 4-5 cÃ¢u, thuyáº¿t phá»¥c, nháº¥n máº¡nh giÃ¡ trá»‹ á»©ng tuyá»ƒn vÃ  tá»‘i Æ°u ngÃ´n ngá»¯ tuyá»ƒn dá»¥ng.'
+        ? 'Viết đoạn summary CV 3-4 câu, rõ ràng, trung tính, dễ dùng ngay.'
+        : 'Viết đoạn summary CV 4-5 câu, thuyết phục, nhấn mạnh giá trị ứng tuyển và tối ưu ngôn ngữ tuyển dụng.'
       : plan === 'free'
         ? 'Write a 3-4 sentence resume summary that is clear, concise, and broadly usable.'
         : 'Write a 4-5 sentence resume summary that is persuasive, tailored for hiring, and uses strong recruiting language.';
@@ -265,11 +265,11 @@ function buildSummaryPrompt(
   const constraints =
     language === 'vi'
       ? [
-          'Tá»‘i Ä‘a 90 tá»«.',
-          'Æ¯u tiÃªn thÃ nh tÃ­ch, sá»‘ liá»‡u, ká»¹ nÄƒng cá»‘t lÃµi.',
-          'Náº¿u thiáº¿u dá»¯ liá»‡u thÃ¬ khÃ´ng bá»‹a.',
-          'KhÃ´ng dÃ¹ng emoji.',
-          plan === 'premium' ? 'Náº¿u cÃ³ target job/company thÃ¬ tinh chá»‰nh theo má»¥c tiÃªu Ä‘Ã³.' : 'Giá»¯ summary Ä‘á»§ tá»•ng quÃ¡t Ä‘á»ƒ dÃ¹ng miá»…n phÃ­.',
+          'Tối đa 90 từ.',
+          'Ưu tiên thành tích, số liệu, kỹ năng cốt lõi.',
+          'Nếu thiếu dữ liệu thì không bịa.',
+          'Không dùng emoji.',
+          plan === 'premium' ? 'Nếu có target job/company thì tinh chỉnh theo mục tiêu đó.' : 'Giữ summary đủ tổng quát để dùng miễn phí.',
         ]
       : [
           'Maximum 90 words.',
@@ -284,7 +284,7 @@ function buildSummaryPrompt(
     '',
     goal,
     '',
-    language === 'vi' ? 'Dá»¯ liá»‡u á»©ng viÃªn:' : 'Candidate data:',
+    language === 'vi' ? 'Dữ liệu ứng viên:' : 'Candidate data:',
     `- Full name: ${cv.personalInfo.fullName || 'N/A'}`,
     `- Current job title: ${cv.personalInfo.jobTitle || 'N/A'}`,
     `- CV title: ${cv.title || 'N/A'}`,
@@ -294,7 +294,7 @@ function buildSummaryPrompt(
     education ? `- Education:\n${education}` : '- Education: N/A',
     recentExperience ? `- Experience:\n${recentExperience}` : '- Experience: N/A',
     '',
-    language === 'vi' ? 'RÃ ng buá»™c:' : 'Constraints:',
+    language === 'vi' ? 'Ràng buộc:' : 'Constraints:',
     ...constraints.map((item) => `- ${item}`),
   ].join('\n');
 }
@@ -306,17 +306,17 @@ function buildExperiencePrompt(
   const { cv, experience } = payload;
   const system =
     language === 'vi'
-      ? 'Báº¡n lÃ  chuyÃªn gia tá»‘i Æ°u pháº§n kinh nghiá»‡m trong CV. Chá»‰ tráº£ vá» ná»™i dung mÃ´ táº£ cuá»‘i cÃ¹ng. KhÃ´ng thÃªm tiÃªu Ä‘á», markdown ngoÃ i bullet, hoáº·c giáº£i thÃ­ch.'
+      ? 'Bạn là chuyên gia tối ưu phần kinh nghiệm trong CV. Chỉ trả về nội dung mô tả cuối cùng. Không thêm tiêu đề, markdown ngoài bullet, hoặc giải thích.'
       : 'You are a resume experience optimizer. Return only the final rewritten experience content. No heading or explanation.';
 
   const constraints =
     language === 'vi'
       ? [
-          'Viáº¿t 3-5 bullet ngáº¯n.',
-          'Má»—i bullet báº¯t Ä‘áº§u báº±ng Ä‘á»™ng tá»« máº¡nh.',
-          'Æ¯u tiÃªn thÃ nh tÃ­ch Ä‘o Ä‘Æ°á»£c, cÃ´ng nghá»‡, pháº¡m vi cÃ´ng viá»‡c.',
-          'KhÃ´ng bá»‹a sá»‘ liá»‡u náº¿u input khÃ´ng cÃ³.',
-          'Giá»¯ vÄƒn phong phÃ¹ há»£p CV chuyÃªn nghiá»‡p.',
+          'Viết 3-5 bullet ngắn.',
+          'Mỗi bullet bắt đầu bằng động từ mạnh.',
+          'Ưu tiên thành tích đo được, công nghệ, phạm vi công việc.',
+          'Không bịa số liệu nếu input không có.',
+          'Giữ văn phong phù hợp CV chuyên nghiệp.',
         ]
       : [
           'Write 3-5 short bullet points.',
@@ -330,7 +330,7 @@ function buildExperiencePrompt(
     system,
     '',
     language === 'vi'
-      ? 'Viáº¿t láº¡i Ä‘oáº¡n mÃ´ táº£ kinh nghiá»‡m dÆ°á»›i Ä‘Ã¢y Ä‘á»ƒ máº¡nh hÆ¡n cho CV.'
+      ? 'Viết lại đoạn mô tả kinh nghiệm dưới đây để mạnh hơn cho CV.'
       : 'Rewrite the following experience description so it is stronger for a resume.',
     '',
     `- Role: ${experience.role || 'N/A'}`,
@@ -341,7 +341,7 @@ function buildExperiencePrompt(
     `- Job description: ${cv.jobDescription || 'N/A'}`,
     `- Existing description:\n${experience.description || 'N/A'}`,
     '',
-    language === 'vi' ? 'RÃ ng buá»™c:' : 'Constraints:',
+    language === 'vi' ? 'Ràng buộc:' : 'Constraints:',
     ...constraints.map((item) => `- ${item}`),
   ].join('\n');
 }
@@ -477,11 +477,11 @@ function buildTailorCvForJobPrompt(
 
   return [
     language === 'vi'
-      ? 'Báº¡n lÃ  chuyÃªn gia tá»‘i Æ°u CV theo job cá»¥ thá»ƒ. Chá»‰ tráº£ vá» JSON há»£p lá»‡ duy nháº¥t, khÃ´ng markdown, khÃ´ng giáº£i thÃ­ch.'
+      ? 'Bạn là chuyên gia tối ưu CV theo job cụ thể. Chỉ trả về JSON hợp lệ duy nhất, không markdown, không giải thích.'
       : 'You are a resume tailoring expert. Return valid JSON only with no markdown or explanation.',
     '',
     language === 'vi'
-      ? 'HÃ£y Ä‘á» xuáº¥t cÃ¡ch tá»‘i Æ°u CV nÃ y cho vá»‹ trÃ­ má»¥c tiÃªu, nhÆ°ng khÃ´ng bá»‹a dá»¯ liá»‡u.'
+      ? 'Hãy đề xuất cách tối ưu CV này cho vị trí mục tiêu, nhưng không bịa dữ liệu.'
       : 'Suggest how to tailor this resume for the target job without inventing facts.',
     '',
     `- Full name: ${cv.personalInfo.fullName || 'N/A'}`,
@@ -496,10 +496,10 @@ function buildTailorCvForJobPrompt(
     experience ? `- Experience:\n${experience}` : '- Experience: N/A',
     '',
     language === 'vi'
-      ? 'Tráº£ vá» Ä‘Ãºng JSON theo schema: {"improvedSummary":string,"suggestedSkillsOrder":string[],"improvedExperienceBullets":[{"experienceIndex":number,"role":string,"company":string,"bullets":string[]}],"keywordsMissing":string[],"recommendations":string[]}.'
+      ? 'Trả về đúng JSON theo schema: {"improvedSummary":string,"suggestedSkillsOrder":string[],"improvedExperienceBullets":[{"experienceIndex":number,"role":string,"company":string,"bullets":string[]}],"keywordsMissing":string[],"recommendations":string[]}.'
       : 'Return JSON with this exact schema: {"improvedSummary":string,"suggestedSkillsOrder":string[],"improvedExperienceBullets":[{"experienceIndex":number,"role":string,"company":string,"bullets":string[]}],"keywordsMissing":string[],"recommendations":string[]}.',
     language === 'vi'
-      ? 'Chá»‰ dÃ¹ng skill Ä‘Ã£ cÃ³ sáºµn trong CV cho suggestedSkillsOrder. Má»—i bullets array nÃªn cÃ³ 2-5 gáº¡ch Ä‘áº§u dÃ²ng ngáº¯n. experienceIndex pháº£i trÃ¹ng vá»›i index Ä‘Ã£ cho.'
+      ? 'Chỉ dùng skill đã có sẵn trong CV cho suggestedSkillsOrder. Mỗi bullets array nên có 2-5 gạch đầu dòng ngắn. experienceIndex phải trùng với index đã cho.'
       : 'Use only skills already present in the resume for suggestedSkillsOrder. Each bullets array should contain 2-5 concise bullets. experienceIndex must match the provided indexes.',
   ].join('\n');
 }
@@ -516,7 +516,7 @@ function buildTailorCvForJobRetryPrompt(
 
   return [
     language === 'vi'
-      ? 'Chá»‰ tráº£ vá» JSON há»£p lá»‡, khÃ´ng markdown, khÃ´ng text thá»«a.'
+      ? 'Chỉ trả về JSON hợp lệ, không markdown, không text thừa.'
       : 'Return valid JSON only. No markdown. No extra text.',
     '{"improvedSummary":string,"suggestedSkillsOrder":string[],"improvedExperienceBullets":[{"experienceIndex":number,"role":string,"company":string,"bullets":string[]}],"keywordsMissing":string[],"recommendations":string[]}',
     `- Target job: ${cv.targetJob || 'N/A'}`,
@@ -526,7 +526,7 @@ function buildTailorCvForJobRetryPrompt(
     `- Skills: ${skills || 'N/A'}`,
     `- Experience:\n${experience || 'N/A'}`,
     language === 'vi'
-      ? 'Chá»‰ dÃ¹ng dá»¯ liá»‡u cÃ³ sáºµn. KhÃ´ng bá»‹a. suggestedSkillsOrder chá»‰ gá»“m skill hiá»‡n cÃ³.'
+      ? 'Chỉ dùng dữ liệu có sẵn. Không bịa. suggestedSkillsOrder chỉ gồm skill hiện có.'
       : 'Use only existing resume data. Do not invent facts. suggestedSkillsOrder must contain only existing skills.',
   ].join('\n\n');
 }
@@ -539,11 +539,11 @@ function buildFresherSummaryPrompt(
 
   return [
     language === 'vi'
-      ? 'Báº¡n lÃ  chuyÃªn gia viáº¿t CV cho sinh viÃªn/fresher. Chá»‰ tráº£ vá» JSON há»£p lá»‡, khÃ´ng markdown, khÃ´ng giáº£i thÃ­ch.'
+      ? 'Bạn là chuyên gia viết CV cho sinh viên/fresher. Chỉ trả về JSON hợp lệ, không markdown, không giải thích.'
       : 'You are a resume writer for students and freshers. Return valid JSON only with no markdown or explanation.',
     '',
     language === 'vi'
-      ? 'Viáº¿t Ä‘oáº¡n summary CV 3-5 cÃ¢u, chuyÃªn nghiá»‡p, tá»± tin nhÆ°ng trung thá»±c.'
+      ? 'Viết đoạn summary CV 3-5 câu, chuyên nghiệp, tự tin nhưng trung thực.'
       : 'Write a 3-5 sentence CV summary that sounds professional, confident, and truthful.',
     `- Target job: ${profile.targetJob || 'N/A'}`,
     `- Field of study: ${profile.fieldOfStudy || 'N/A'}`,
@@ -553,7 +553,7 @@ function buildFresherSummaryPrompt(
     `- Achievements/results: ${profile.achievements || 'N/A'}`,
     '',
     language === 'vi'
-      ? 'KhÃ´ng bá»‹a sá»‘ liá»‡u. Náº¿u thiáº¿u thÃ nh tÃ­ch Ä‘á»‹nh lÆ°á»£ng, dÃ¹ng wording trung tÃ­nh. Tráº£ vá» JSON: {"summary":string}.'
+      ? 'Không bịa số liệu. Nếu thiếu thành tích định lượng, dùng wording trung tính. Trả về JSON: {"summary":string}.'
       : 'Do not invent metrics. If quantified outcomes are missing, use neutral wording. Return JSON: {"summary":string}.',
   ].join('\n');
 }
@@ -566,7 +566,7 @@ function buildFresherSummaryRetryPrompt(
 
   return [
     language === 'vi'
-      ? 'Chá»‰ tráº£ vá» JSON há»£p lá»‡, khÃ´ng markdown, khÃ´ng text thá»«a.'
+      ? 'Chỉ trả về JSON hợp lệ, không markdown, không text thừa.'
       : 'Return valid JSON only. No markdown. No extra text.',
     '{"summary":string}',
     `- Target job: ${profile.targetJob || 'N/A'}`,
@@ -574,7 +574,7 @@ function buildFresherSummaryRetryPrompt(
     `- Skills: ${profile.technologies.join(', ') || 'N/A'}`,
     `- Achievements: ${profile.achievements || 'N/A'}`,
     language === 'vi'
-      ? 'Summary pháº£i dÃ i 3-5 cÃ¢u, trung thá»±c, khÃ´ng bá»‹a sá»‘ liá»‡u.'
+      ? 'Summary phải dài 3-5 câu, trung thực, không bịa số liệu.'
       : 'Summary must be 3-5 sentences, truthful, and must not invent metrics.',
   ].join('\n\n');
 }
@@ -587,11 +587,11 @@ function buildProjectBulletsPrompt(
 
   return [
     language === 'vi'
-      ? 'Báº¡n lÃ  chuyÃªn gia viáº¿t bullet CV cho sinh viÃªn/fresher. Chá»‰ tráº£ vá» JSON há»£p lá»‡, khÃ´ng markdown, khÃ´ng giáº£i thÃ­ch.'
+      ? 'Bạn là chuyên gia viết bullet CV cho sinh viên/fresher. Chỉ trả về JSON hợp lệ, không markdown, không giải thích.'
       : 'You are a resume bullet writer for students and freshers. Return valid JSON only with no markdown or explanation.',
     '',
     language === 'vi'
-      ? 'Viáº¿t 3-5 bullet CV ngáº¯n, rÃµ, chuyÃªn nghiá»‡p cho má»¥c Project.'
+      ? 'Viết 3-5 bullet CV ngắn, rõ, chuyên nghiệp cho mục Project.'
       : 'Write 3-5 short, clear, professional CV bullets for a Project section.',
     `- Target job: ${project.targetJob || 'N/A'}`,
     `- Field of study: ${project.fieldOfStudy || 'N/A'}`,
@@ -601,7 +601,7 @@ function buildProjectBulletsPrompt(
     `- Achievements/results: ${project.achievements || 'N/A'}`,
     '',
     language === 'vi'
-      ? 'Má»—i bullet báº¯t Ä‘áº§u báº±ng Ä‘á»™ng tá»« máº¡nh. KhÃ´ng bá»‹a sá»‘ liá»‡u. Náº¿u thiáº¿u káº¿t quáº£ Ä‘á»‹nh lÆ°á»£ng, dÃ¹ng wording trung tÃ­nh. Tráº£ vá» JSON: {"bullets":string[]}.'
+      ? 'Mỗi bullet bắt đầu bằng động từ mạnh. Không bịa số liệu. Nếu thiếu kết quả định lượng, dùng wording trung tính. Trả về JSON: {"bullets":string[]}.'
       : 'Each bullet must start with a strong action verb. Do not invent metrics. If quantified outcomes are missing, use neutral wording. Return JSON: {"bullets":string[]}.',
   ].join('\n');
 }
@@ -614,7 +614,7 @@ function buildProjectBulletsRetryPrompt(
 
   return [
     language === 'vi'
-      ? 'Chá»‰ tráº£ vá» JSON há»£p lá»‡, khÃ´ng markdown, khÃ´ng text thá»«a.'
+      ? 'Chỉ trả về JSON hợp lệ, không markdown, không text thừa.'
       : 'Return valid JSON only. No markdown. No extra text.',
     '{"bullets":string[]}',
     `- Project name: ${project.itemName || 'N/A'}`,
@@ -622,7 +622,7 @@ function buildProjectBulletsRetryPrompt(
     `- Technologies: ${project.technologies.join(', ') || 'N/A'}`,
     `- Achievements: ${project.achievements || 'N/A'}`,
     language === 'vi'
-      ? 'Tráº£ vá» Ä‘Ãºng 3-5 bullet, trung tÃ­nh náº¿u thiáº¿u sá»‘ liá»‡u.'
+      ? 'Trả về đúng 3-5 bullet, trung tính nếu thiếu số liệu.'
       : 'Return exactly 3-5 bullets and use neutral wording if metrics are missing.',
   ].join('\n\n');
 }
@@ -635,11 +635,11 @@ function buildActivityBulletsPrompt(
 
   return [
     language === 'vi'
-      ? 'Báº¡n lÃ  chuyÃªn gia chuyá»ƒn hoáº¡t Ä‘á»™ng/CLB/part-time thÃ nh bullet CV. Chá»‰ tráº£ vá» JSON há»£p lá»‡, khÃ´ng markdown, khÃ´ng giáº£i thÃ­ch.'
+      ? 'Bạn là chuyên gia chuyển hoạt động/CLB/part-time thành bullet CV. Chỉ trả về JSON hợp lệ, không markdown, không giải thích.'
       : 'You are a resume writer who converts activities, clubs, and part-time work into CV bullets. Return valid JSON only with no markdown or explanation.',
     '',
     language === 'vi'
-      ? 'Viáº¿t 3-5 bullet CV ngáº¯n, chuyÃªn nghiá»‡p cho má»¥c Activities.'
+      ? 'Viết 3-5 bullet CV ngắn, chuyên nghiệp cho mục Activities.'
       : 'Write 3-5 short professional CV bullets for an Activities section.',
     `- Target job: ${activity.targetJob || 'N/A'}`,
     `- Field of study: ${activity.fieldOfStudy || 'N/A'}`,
@@ -649,7 +649,7 @@ function buildActivityBulletsPrompt(
     `- Achievements/results: ${activity.achievements || 'N/A'}`,
     '',
     language === 'vi'
-      ? 'Nháº¥n máº¡nh trÃ¡ch nhiá»‡m, ká»¹ nÄƒng, phá»‘i há»£p vÃ  káº¿t quáº£ thá»±c táº¿. KhÃ´ng bá»‹a sá»‘ liá»‡u. Náº¿u thiáº¿u Ä‘á»‹nh lÆ°á»£ng, dÃ¹ng wording trung tÃ­nh. Tráº£ vá» JSON: {"bullets":string[]}.'
+      ? 'Nhấn mạnh trách nhiệm, kỹ năng, phối hợp và kết quả thực tế. Không bịa số liệu. Nếu thiếu định lượng, dùng wording trung tính. Trả về JSON: {"bullets":string[]}.'
       : 'Emphasize responsibilities, skills, collaboration, and concrete outcomes. Do not invent metrics. If quantified results are missing, use neutral wording. Return JSON: {"bullets":string[]}.',
   ].join('\n');
 }
@@ -662,7 +662,7 @@ function buildActivityBulletsRetryPrompt(
 
   return [
     language === 'vi'
-      ? 'Chá»‰ tráº£ vá» JSON há»£p lá»‡, khÃ´ng markdown, khÃ´ng text thá»«a.'
+      ? 'Chỉ trả về JSON hợp lệ, không markdown, không text thừa.'
       : 'Return valid JSON only. No markdown. No extra text.',
     '{"bullets":string[]}',
     `- Activity name: ${activity.itemName || 'N/A'}`,
@@ -670,7 +670,7 @@ function buildActivityBulletsRetryPrompt(
     `- Skills: ${activity.technologies.join(', ') || 'N/A'}`,
     `- Achievements: ${activity.achievements || 'N/A'}`,
     language === 'vi'
-      ? 'Tráº£ vá» Ä‘Ãºng 3-5 bullet, khÃ´ng bá»‹a sá»‘ liá»‡u.'
+      ? 'Trả về đúng 3-5 bullet, không bịa số liệu.'
       : 'Return exactly 3-5 bullets and do not invent metrics.',
   ].join('\n\n');
 }
@@ -689,7 +689,7 @@ class AtsInvalidFormatError extends Error {
   code = 'ATS_INVALID_FORMAT' as const;
 
   constructor() {
-    super('AI tráº£ vá» Ä‘á»‹nh dáº¡ng ATS khÃ´ng há»£p lá»‡. Vui lÃ²ng thá»­ láº¡i.');
+    super('AI trả về định dạng ATS không hợp lệ. Vui lòng thử lại.');
   }
 }
 
@@ -748,7 +748,7 @@ class TailorCvInvalidFormatError extends Error {
   code = 'TAILOR_INVALID_FORMAT' as const;
 
   constructor() {
-    super('AI tráº£ vá» Ä‘á»‹nh dáº¡ng Tailor CV khÃ´ng há»£p lá»‡. Vui lÃ²ng thá»­ láº¡i.');
+    super('AI trả về định dạng Tailor CV không hợp lệ. Vui lòng thử lại.');
   }
 }
 
@@ -880,7 +880,7 @@ async function generateFresherSummary(
   logStudentAiDebug('fresherSummary', 'retry', retryRaw);
   throw new StudentAiInvalidFormatError(
     'FRESHER_SUMMARY_INVALID_FORMAT',
-    'AI tráº£ vá» Ä‘á»‹nh dáº¡ng fresher summary khÃ´ng há»£p lá»‡. Vui lÃ²ng thá»­ láº¡i.'
+    'AI trả về định dạng fresher summary không hợp lệ. Vui lòng thử lại.'
   );
 }
 
@@ -905,7 +905,7 @@ async function generateProjectBullets(
   logStudentAiDebug('generateProjectBullets', 'retry', retryRaw);
   throw new StudentAiInvalidFormatError(
     'PROJECT_BULLETS_INVALID_FORMAT',
-    'AI tráº£ vá» Ä‘á»‹nh dáº¡ng project bullets khÃ´ng há»£p lá»‡. Vui lÃ²ng thá»­ láº¡i.'
+    'AI trả về định dạng project bullets không hợp lệ. Vui lòng thử lại.'
   );
 }
 
@@ -930,7 +930,7 @@ async function generateActivityBullets(
   logStudentAiDebug('convertActivitiesToCvBullets', 'retry', retryRaw);
   throw new StudentAiInvalidFormatError(
     'ACTIVITY_BULLETS_INVALID_FORMAT',
-    'AI tráº£ vá» Ä‘á»‹nh dáº¡ng activity bullets khÃ´ng há»£p lá»‡. Vui lÃ²ng thá»­ láº¡i.'
+    'AI trả về định dạng activity bullets không hợp lệ. Vui lòng thử lại.'
   );
 }
 
@@ -959,7 +959,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: 'USER_DOC_MISSING',
-            message: 'Thiáº¿u há»“ sÆ¡ ngÆ°á»i dÃ¹ng trong Firestore.',
+            message: 'Thiếu hồ sơ người dùng trong Firestore.',
           },
           { status: 500 }
         );
@@ -970,7 +970,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'USER_DOC_MISSING',
-          message: 'Thiáº¿u há»“ sÆ¡ ngÆ°á»i dÃ¹ng trong Firestore.',
+          message: 'Thiếu hồ sơ người dùng trong Firestore.',
         },
         { status: 500 }
       );
@@ -988,7 +988,7 @@ export async function POST(request: NextRequest) {
 
     if (body.action === 'rewriteExperience' && !body.experience.description.trim()) {
       return NextResponse.json(
-        { error: 'INVALID_INPUT', message: 'MÃ´ táº£ kinh nghiá»‡m khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng khi dÃ¹ng AI rewrite.' },
+        { error: 'INVALID_INPUT', message: 'Mô tả kinh nghiệm không được để trống khi dùng AI rewrite.' },
         { status: 400 }
       );
     }
@@ -996,7 +996,7 @@ export async function POST(request: NextRequest) {
     if (body.action === 'atsReview') {
       if (!body.cv.targetJob.trim() || !body.cv.targetCompany.trim() || !body.cv.jobDescription.trim()) {
         return NextResponse.json(
-          { error: 'INVALID_INPUT', message: 'Vui lÃ²ng nháº­p Ä‘áº§y Ä‘á»§ vá»‹ trÃ­ á»©ng tuyá»ƒn, tÃªn cÃ´ng ty vÃ  job description Ä‘á»ƒ phÃ¢n tÃ­ch CV.' },
+          { error: 'INVALID_INPUT', message: 'Vui lòng nhập đầy đủ vị trí ứng tuyển, tên công ty và job description để phân tích CV.' },
           { status: 400 }
         );
       }
@@ -1005,7 +1005,7 @@ export async function POST(request: NextRequest) {
     if (body.action === 'generateCoverLetter') {
       if (!body.cv.targetJob.trim() || !body.cv.targetCompany.trim() || !body.cv.jobDescription.trim()) {
         return NextResponse.json(
-          { error: 'INVALID_INPUT', message: 'Vui lÃ²ng nháº­p Ä‘áº§y Ä‘á»§ vá»‹ trÃ­ á»©ng tuyá»ƒn, tÃªn cÃ´ng ty vÃ  job description Ä‘á»ƒ táº¡o cover letter.' },
+          { error: 'INVALID_INPUT', message: 'Vui lòng nhập đầy đủ vị trí ứng tuyển, tên công ty và job description để tạo cover letter.' },
           { status: 400 }
         );
       }
@@ -1050,19 +1050,19 @@ export async function POST(request: NextRequest) {
             error: 'INSUFFICIENT_ACCESS',
             upgradeRequired: true,
             remainingToday: 0,
-            message: 'Báº¡n cáº§n nÃ¢ng cáº¥p Premium hoáº·c náº¡p thÃªm credit Ä‘á»ƒ sá»­ dá»¥ng tÃ­nh nÄƒng nÃ y.',
+            message: 'Bạn cần nâng cấp Premium hoặc nạp thêm credit để sử dụng tính năng này.',
           },
           { status: 402 }
         );
       }
       
       try {
-        await spendCredits(decodedToken.uid, creditCost, `Sá»­ dá»¥ng tÃ­nh nÄƒng AI: ${body.action}`);
+        await spendCredits(decodedToken.uid, creditCost, `Sử dụng tính năng AI: ${body.action}`);
       } catch {
         return NextResponse.json(
           {
             error: 'Transaction failed',
-            message: 'KhÃ´ng thá»ƒ trá»« credit. Vui lÃ²ng thá»­ láº¡i.',
+            message: 'Không thể trừ credit. Vui lòng thử lại.',
           },
           { status: 500 }
         );

@@ -43,7 +43,7 @@
 .heroTitle {
   font-size: clamp(2rem, 4.2vw, 3.3rem);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.14;
   letter-spacing: -0.03em;
 }
 
@@ -81,6 +81,7 @@
   margin-top: 4px;
   font-size: 0.8rem;
   color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 .heroActions {
@@ -401,8 +402,9 @@
 
 .cardTarget {
   color: var(--text-muted);
-  font-size: 0.77rem;
+  font-size: 0.8rem;
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .cardDesc {
@@ -425,7 +427,7 @@
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.06);
   color: var(--text-secondary);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 700;
 }
 
@@ -713,5 +715,27 @@
 
   .section {
     padding: 28px 0;
+  }
+
+  .heroTitle {
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .heroDesc,
+  .sectionDesc,
+  .cardDesc,
+  .emptyDesc,
+  .modalText {
+    font-size: 0.92rem;
+    line-height: 1.68;
+  }
+
+  .cardTitle {
+    font-size: 1.02rem;
+  }
+
+  .resultsCount {
+    font-size: 0.88rem;
   }
 }

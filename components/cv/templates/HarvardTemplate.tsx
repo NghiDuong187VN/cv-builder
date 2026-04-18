@@ -7,6 +7,7 @@ const t = (lang: string, k: string) => (lang==='en'?EN:VI)[k] ?? k.toUpperCase()
 
 export default function HarvardTemplate({ cv }: { cv: CV }) {
   const font = cv.theme?.font || 'Georgia, serif';
+  const fontStack = `${font}, "Times New Roman", "Be Vietnam Pro", "Noto Serif", serif`;
   const lang = cv.language || 'vi';
   const sections = (cv.sections?.order || []) as CVSection[];
   const vis = cv.sections?.visibility || {};
@@ -22,7 +23,7 @@ export default function HarvardTemplate({ cv }: { cv: CV }) {
   );
 
   return (
-    <div style={{ fontFamily: font, color: '#1a1a1a', minHeight: '297mm', background: 'white', padding: '48px 60px' }}>
+    <div style={{ fontFamily: fontStack, color: '#1a1a1a', minHeight: '297mm', background: 'white', padding: '48px 60px' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '16px', borderBottom: '2px solid #1a1a1a' }}>
         <h1 style={{ fontWeight: 700, fontSize: '1.8rem', letterSpacing: '2px', textTransform: 'uppercase', margin: 0, marginBottom: '8px', color: '#1a1a1a' }}>

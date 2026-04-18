@@ -284,7 +284,7 @@ export default function PrintCvPage() {
                  fontWeight: 700,
                  color: 'rgba(0,0,0,0.3)',
                  pointerEvents: 'none',
-                 fontFamily: 'sans-serif'
+                 fontFamily: 'var(--font-body), "Be Vietnam Pro", "Noto Sans", "Segoe UI", Arial, sans-serif'
                }}
              >
                Tạo bởi CVFlow.vn

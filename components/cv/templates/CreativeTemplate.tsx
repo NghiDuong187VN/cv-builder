@@ -9,13 +9,14 @@ export default function CreativeTemplate({ cv }: { cv: CV }) {
   const primary = cv.theme?.primaryColor || '#ec4899';
   const secondary = cv.theme?.secondaryColor || '#f59e0b';
   const font = cv.theme?.font || 'Montserrat, Plus Jakarta Sans';
+  const fontStack = `${font}, "Be Vietnam Pro", "Noto Sans", "Segoe UI", Arial, sans-serif`;
   const lang = cv.language || 'vi';
   const sections = (cv.sections?.order || []) as CVSection[];
   const vis = cv.sections?.visibility || {};
   const info = cv.content?.personalInfo;
 
   return (
-    <div style={{ fontFamily: font, color: '#1e1e2e', minHeight: '297mm', background: 'white', display: 'flex' }}>
+    <div style={{ fontFamily: fontStack, color: '#1e1e2e', minHeight: '297mm', background: 'white', display: 'flex' }}>
       {/* SIDEBAR */}
       <div style={{ width: '38%', background: `linear-gradient(180deg, ${primary}, ${secondary})`, padding: '40px 24px', color: 'white', flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
         {/* BG decoration */}

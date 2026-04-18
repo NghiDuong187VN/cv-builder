@@ -39,13 +39,14 @@ function MainSection({ title, primary, children }: { title: string; primary: str
 export default function MinimalTemplate({ cv }: { cv: CV }) {
   const primary = cv.theme?.primaryColor || '#1e293b';
   const font = cv.theme?.font || 'Plus Jakarta Sans';
+  const fontStack = `${font}, "Be Vietnam Pro", "Noto Sans", "Segoe UI", Arial, sans-serif`;
   const lang = cv.language || 'vi';
   const sections = (cv.sections?.order || []) as CVSection[];
   const vis = cv.sections?.visibility || {};
   const info = cv.content?.personalInfo;
 
   return (
-    <div style={{ fontFamily: font, color: '#334155', display: 'flex', minHeight: '297mm', background: 'white' }}>
+    <div style={{ fontFamily: fontStack, color: '#334155', display: 'flex', minHeight: '297mm', background: 'white' }}>
       {/* LEFT SIDEBAR */}
       <div style={{ width: '33%', background: '#f8fafc', padding: '36px 24px', borderRight: '1px solid #e2e8f0', flexShrink: 0 }}>
         {cv.theme?.showAvatar && (
