@@ -6,7 +6,7 @@ import { ArrowLeft, Search, ChevronRight, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuotaStatus } from '@/hooks/useQuotaStatus';
-import { createCV, TEMPLATES } from '@/lib/firestore';
+import { TEMPLATES } from '@/lib/firestore';
 import { Template } from '@/lib/types';
 import Navbar from '@/components/layout/Navbar';
 import MobileEditorWarning from '@/components/cv/editor/MobileEditorWarning';
@@ -83,8 +83,8 @@ export default function NewCVPage() {
   const { firebaseUser, loading } = useAuth();
   const { quotaStatus, quotaLoading } = useQuotaStatus(firebaseUser);
 
-  const [templates, setTemplates] = useState<Template[]>(TEMPLATES as Template[]);
-  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templates] = useState<Template[]>(TEMPLATES as Template[]);
+  const [templatesLoading] = useState(false);
   const [styleFilter, setStyleFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -94,10 +94,27 @@ export default function NewCVPage() {
   const [cvTitle, setCvTitle] = useState('');
   const [showNameModal, setShowNameModal] = useState(false);
   const [showCvLimitModal, setShowCvLimitModal] = useState(false);
+  const [hasAppliedTemplatePrefill, setHasAppliedTemplatePrefill] = useState(false);
 
   useEffect(() => {
     if (!loading && !firebaseUser) router.push('/auth');
   }, [loading, firebaseUser, router]);
+
+  useEffect(() => {
+    if (hasAppliedTemplatePrefill || templates.length === 0) return;
+
+    const preselectedTemplateId = new URLSearchParams(window.location.search).get('template');
+    if (!preselectedTemplateId) return;
+
+    const matchedTemplate = templates.find(template => template.templateId === preselectedTemplateId);
+    if (!matchedTemplate) return;
+
+    setSelectedTemplate(matchedTemplate);
+    setPreviewTemplate(null);
+    setCvTitle(`CV ${matchedTemplate.nameVi} ${new Date().getFullYear()}`);
+    setShowNameModal(true);
+    setHasAppliedTemplatePrefill(true);
+  }, [hasAppliedTemplatePrefill, templates]);
 
   const filtered = useMemo(() => {
     return templates.filter(t => {
@@ -177,7 +194,8 @@ export default function NewCVPage() {
 
       toast.success('Tạo CV thành công! 🎉');
       router.push(`/cv/${data.cvId}/edit`);
-    } catch (err: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       toast.error(err.message || 'Có lỗi xảy ra, vui lòng thử lại');
       setCreating(false);
     }
