@@ -1,0 +1,739 @@
+.heroSection {
+  padding: 56px 0 30px;
+  border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.12), transparent 44%),
+    radial-gradient(circle at 85% 10%, rgba(6, 182, 212, 0.08), transparent 40%);
+}
+
+.heroWrap {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heroTitle {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.12;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.heroDesc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.summaryGrid {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summaryCard {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 14px;
+  text-align: left;
+}
+
+.summaryCard h3 {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.summaryCard p {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.summaryCardFree {
+  border-color: rgba(16, 185, 129, 0.26);
+}
+
+.summaryCardCredits {
+  border-color: rgba(245, 158, 11, 0.26);
+}
+
+.summaryCardPremium {
+  border-color: rgba(99, 102, 241, 0.26);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.08), rgba(255, 255, 255, 0.92));
+}
+
+.section {
+  padding: 42px 0;
+}
+
+.sectionHead {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.sectionHead h2 {
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.sectionHead p {
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.decisionTop {
+  display: grid;
+  grid-template-columns: minmax(250px, 320px) 1fr;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.freeMiniCard {
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 18px;
+}
+
+.freeMiniHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.freeMiniHeader h3 {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.freeBadge {
+  display: inline-flex;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+}
+
+.freeMiniCard p {
+  margin-top: 10px;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.freeMiniList {
+  margin-top: 12px;
+  list-style: none;
+  display: grid;
+  gap: 7px;
+}
+
+.freeMiniList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.choiceWrap {
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 14px;
+}
+
+.choiceNote {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding: 8px 8px 12px;
+}
+
+.tabs {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 4px;
+  border-radius: 14px;
+  gap: 4px;
+}
+
+.tab {
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-secondary);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tabActive {
+  background: white;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.premiumGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.planCard {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.planCardFeatured {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.08), rgba(255, 255, 255, 0.95));
+}
+
+.planCardSavings {
+  border-color: rgba(14, 165, 233, 0.35);
+}
+
+.planBadge {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 0.73rem;
+  font-weight: 800;
+}
+
+.planBadgePopular {
+  color: white;
+  background: var(--gradient-primary);
+}
+
+.planBadgeSaving {
+  color: #0369a1;
+  background: rgba(14, 165, 233, 0.16);
+  border: 1px solid rgba(14, 165, 233, 0.32);
+}
+
+.planName {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.planPrice {
+  font-size: clamp(1.5rem, 2.3vw, 1.9rem);
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.planMeta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.planSavings {
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.planFeatureList {
+  margin-top: 2px;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  flex: 1;
+}
+
+.planFeatureList li {
+  display: flex;
+  gap: 7px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.fullButton {
+  width: 100%;
+  justify-content: center;
+}
+
+.trustNote {
+  margin-top: 14px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.creditsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.creditsHeaderTitle {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.creditsHeaderSub {
+  margin-top: 3px;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.creditsGrid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.creditCard {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.creditCard h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.creditCard p {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.52;
+}
+
+.creditBonus {
+  width: fit-content;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.16);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.creditCustomGrid {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.creditInfoGrid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.creditInfoCard {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 14px;
+}
+
+.creditInfoCard h3 {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.creditInfoCard p {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.usageBlock {
+  margin-top: 10px;
+}
+
+.usageGrid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.usageItem {
+  border-radius: 13px;
+  border: 1px solid var(--border);
+  background: rgba(99, 102, 241, 0.04);
+  padding: 12px;
+}
+
+.usageItem h4 {
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.usageCost {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.comparisonWrap {
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.comparisonScroll {
+  overflow-x: auto;
+}
+
+.comparisonTable {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.comparisonTable th,
+.comparisonTable td {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 14px;
+  text-align: center;
+  font-size: 0.84rem;
+}
+
+.comparisonTable th:first-child,
+.comparisonTable td:first-child {
+  text-align: left;
+  width: 30%;
+}
+
+.comparisonHead {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.comparisonPremiumCol {
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.check {
+  color: #047857;
+  font-weight: 900;
+}
+
+.minus {
+  color: var(--text-muted);
+  font-weight: 900;
+}
+
+.advisorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.advisorCard {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-card);
+  padding: 16px;
+}
+
+.advisorCard h3 {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.advisorCard p {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.aiPanel {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.aiGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.aiCol {
+  padding: 16px;
+}
+
+.aiBefore {
+  background: rgba(239, 68, 68, 0.05);
+  border-right: 1px solid var(--border);
+}
+
+.aiAfter {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.aiLabel {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.aiLabelBefore {
+  background: rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+}
+
+.aiLabelAfter {
+  background: rgba(16, 185, 129, 0.18);
+  color: #047857;
+}
+
+.aiText {
+  font-size: 0.86rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.aiHighlightList {
+  margin-top: 10px;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.aiHighlightList li {
+  font-size: 0.8rem;
+  color: #047857;
+  font-weight: 700;
+}
+
+.centerCta {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.faqList {
+  max-width: 860px;
+  margin: 0 auto;
+  display: grid;
+  gap: 10px;
+}
+
+.faqItem {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.faqSummary {
+  list-style: none;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faqIcon {
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.faqAnswer {
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.65;
+  padding: 0 16px 14px;
+}
+
+.pricingFooter {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding: 30px 0 34px;
+}
+
+.pricingFooterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.pricingFooterColumn h3 {
+  font-size: 0.86rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.pricingFooterColumn ul {
+  list-style: none;
+  display: grid;
+  gap: 7px;
+}
+
+.pricingFooterColumn a,
+.pricingFooterColumn li {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.pricingFooterBottom {
+  margin-top: 18px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.mobileCompare {
+  display: none;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.mobileCompareCard {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  background: var(--bg-card);
+}
+
+.mobileCompareCard h3 {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.mobileCompareItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  padding: 5px 0;
+  border-top: 1px dashed rgba(99, 102, 241, 0.16);
+}
+
+.mobileCompareItem:first-of-type {
+  border-top: none;
+}
+
+@media (max-width: 1100px) {
+  .premiumGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .creditsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .usageGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .summaryGrid,
+  .advisorGrid,
+  .pricingFooterGrid,
+  .creditInfoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .decisionTop {
+    grid-template-columns: 1fr;
+  }
+
+  .aiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .aiBefore {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comparisonScroll {
+    display: none;
+  }
+
+  .mobileCompare {
+    display: grid;
+  }
+}
+
+@media (max-width: 640px) {
+  .heroSection {
+    padding: 44px 0 24px;
+  }
+
+  .section {
+    padding: 34px 0;
+  }
+
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .premiumGrid,
+  .creditsGrid,
+  .usageGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .creditCustomGrid {
+    grid-template-columns: 1fr;
+  }
+}
