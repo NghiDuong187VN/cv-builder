@@ -47,6 +47,26 @@
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: all 0.15s ease;
   --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ─── Typography scale ─── */
+  /* Body text */
+  --text-xs:   0.75rem;   /* 12px — caption, usage count */
+  --text-sm:   0.825rem;  /* 13px — badge, chip, meta */
+  --text-base: 0.9375rem; /* 15px — body copy */
+  --text-md:   1rem;      /* 16px — lead body */
+  --text-lg:   1.125rem;  /* 18px — card title, subhead */
+  --text-xl:   1.375rem;  /* 22px — section subhead */
+  /* Heading sizes managed via clamp() in components */
+
+  /* Line heights — Vietnamese needs generous leading */
+  --leading-tight:  1.3;   /* headings */
+  --leading-snug:   1.5;   /* subheadings, badges */
+  --leading-normal: 1.7;   /* body copy */
+  --leading-relaxed:1.85;  /* long-form paragraph */
+
+  /* Font families */
+  --font-jakarta: var(--font-heading), 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-inter:   var(--font-body),    'Be Vietnam Pro',   system-ui, sans-serif;
 }
 
 /* ─── Dark Mode ─────────────────────────────────────────────── */
@@ -77,12 +97,15 @@ html {
 }
 
 body {
-  font-family: var(--font-jakarta), var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body), 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: var(--leading-normal);
+  font-size: var(--text-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  text-rendering: optimizeLegibility;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -104,10 +127,12 @@ body::before {
 
 /* ─── Typography ────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-heading), 'Plus Jakarta Sans', var(--font-body), system-ui, sans-serif;
   font-weight: 700;
-  line-height: 1.2;
+  /* 1.3 minimum so Vietnamese diacritics (ắ ổ ứ) don't clip */
+  line-height: var(--leading-tight);
   color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 .gradient-text {

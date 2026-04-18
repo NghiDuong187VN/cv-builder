@@ -85,10 +85,10 @@ export default function TemplatesPage() {
                 👑 {premiumCount} mẫu cao cấp
               </span>
             </div>
-            <h1 style={{ fontWeight: 800, fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', color: 'white', marginBottom: '12px', lineHeight: 1.2 }}>
+            <h1 style={{ fontWeight: 800, fontSize: 'clamp(1.9rem, 4vw, 2.9rem)', color: 'white', marginBottom: '14px', lineHeight: 1.25, letterSpacing: '-0.02em', fontFamily: 'var(--font-heading)' }}>
               🎨 Kho Mẫu CV Chuyên Nghiệp
             </h1>
-            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.65 }}>
+            <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: '1rem', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.75 }}>
               Từ sinh viên đến chuyên gia — tìm mẫu phù hợp phong cách và ngành nghề của bạn.
             </p>
             <div style={{
@@ -128,7 +128,11 @@ export default function TemplatesPage() {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '6px',
                     padding: '8px 16px', borderRadius: '9999px', cursor: 'pointer',
-                    whiteSpace: 'nowrap', fontFamily: 'inherit', fontWeight: 600, fontSize: '0.85rem',
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'var(--font-body), inherit',
+                    fontWeight: 600,
+                    fontSize: 'var(--text-sm)',
+                    letterSpacing: '0.01em',
                     background: category === c.key ? 'var(--primary)' : 'var(--bg-card)',
                     color: category === c.key ? 'white' : 'var(--text-secondary)',
                     border: category === c.key ? '1px solid transparent' : '1px solid var(--border)',
@@ -329,10 +333,16 @@ function TemplateCard({ template: t, delay, isPremiumUser }: { template: Templat
       {/* Card info */}
       <div style={{ padding: '14px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-          <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{t.nameVi}</h3>
+          <h3 style={{
+            fontWeight: 700,
+            fontSize: 'var(--text-base)',
+            color: 'var(--text-primary)',
+            lineHeight: 'var(--leading-snug)',
+            fontFamily: 'var(--font-heading)',
+          }}>{t.nameVi}</h3>
           {isLocked && <Crown size={14} color="#f59e0b" />}
         </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginBottom: '10px', lineHeight: 1.5 }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: '10px', lineHeight: 1.65 }}>
           {t.descriptionVi.slice(0, 65)}...
         </p>
 
@@ -357,7 +367,11 @@ function TemplateCard({ template: t, delay, isPremiumUser }: { template: Templat
               <div key={i} style={{ width: '14px', height: '14px', borderRadius: '50%', background: c, border: '2px solid var(--border)' }} />
             ))}
           </div>
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+          <span style={{
+              fontSize: 'var(--text-xs)',
+              color: 'var(--text-muted)',
+              lineHeight: 1,
+            }}>
             ⬇ {t.usageCount.toLocaleString()} lượt dùng
           </span>
         </div>
