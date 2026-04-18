@@ -7,6 +7,7 @@ import { AlertCircle, Loader, Printer } from 'lucide-react';
 
 import TemplateRenderer from '@/components/cv/TemplateRenderer';
 import { useAuth } from '@/hooks/useAuth';
+import { useQuotaStatus } from '@/hooks/useQuotaStatus';
 import { getCV, getCVBySlug, incrementCVDownload } from '@/lib/firestore';
 import type { CV } from '@/lib/types';
 
@@ -41,6 +42,7 @@ export default function PrintCvPage() {
   const searchParams = useSearchParams();
   const identifier = params?.id as string;
   const { firebaseUser, loading: authLoading } = useAuth();
+  const { quotaStatus } = useQuotaStatus(firebaseUser);
 
   const [cv, setCv] = useState<CV | null>(null);
   const [loading, setLoading] = useState(true);
@@ -260,6 +262,7 @@ export default function PrintCvPage() {
         <div
           id="cv-print-document"
           style={{
+            position: 'relative',
             width: '794px',
             minWidth: '794px',
             background: '#fff',
@@ -268,6 +271,25 @@ export default function PrintCvPage() {
           }}
         >
           <TemplateRenderer cv={cv} />
+          
+          {/* Watermark Logic */}
+           {(!firebaseUser || (!quotaStatus?.isPremium && !cv.watermarkRemoved)) && (
+             <div 
+               className="pdf-watermark"
+               style={{
+                 position: 'absolute',
+                 bottom: '10px',
+                 right: '20px',
+                 fontSize: '0.8rem',
+                 fontWeight: 700,
+                 color: 'rgba(0,0,0,0.3)',
+                 pointerEvents: 'none',
+                 fontFamily: 'sans-serif'
+               }}
+             >
+               Tạo bởi CVFlow.vn
+             </div>
+           )}
         </div>
       </div>
 

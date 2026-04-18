@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import {
   FREE_AI_DAILY_LIMIT,
+  type AiAction,
   getAllowedAiActions,
   getRemainingFreeAiRequests,
   getUpgradeRequiredActions,
@@ -59,8 +60,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const user = userSnap.data() as { plan?: 'free' | 'premium' };
-  const plan = user.plan === 'premium' ? 'premium' : 'free';
+  const user = userSnap.data() as import('@/lib/types').User;
+  
+  const { FEATURE_COSTS, hasEnoughCredits, isPremium } = await import('@/lib/billing');
+  const premiumActive = isPremium(user);
+  const plan = premiumActive ? 'premium' : 'free';
   const usageKey = new Date().toISOString().slice(0, 10);
   const [usageSnap, cvsSnap] = await Promise.all([
     userRef.collection('aiUsage').doc(usageKey).get(),
@@ -73,15 +77,50 @@ export async function GET(request: NextRequest) {
   const cvCount = cvsSnap.size;
   const cvLimit = plan === 'free' ? FREE_CV_LIMIT : null;
   const cvRemaining = plan === 'free' ? getRemainingFreeCvSlots(cvCount) : null;
-  const allowedActions = getAllowedAiActions(plan);
-  const upgradeRequiredActions = getUpgradeRequiredActions(plan);
+  const baseAllowedActions = new Set<AiAction>(getAllowedAiActions(plan));
+  const creditUnlockedActions: AiAction[] = [];
+
+  if (!premiumActive) {
+    const canSpendForSummary = hasEnoughCredits(user, FEATURE_COSTS.aiSummary);
+    if (remainingToday === 0 && canSpendForSummary) {
+      baseAllowedActions.add('generateSummary');
+      baseAllowedActions.add('fresherSummary');
+      creditUnlockedActions.push('generateSummary', 'fresherSummary');
+    }
+
+    if (hasEnoughCredits(user, FEATURE_COSTS.aiRewrite)) {
+      baseAllowedActions.add('rewriteExperience');
+      baseAllowedActions.add('generateProjectBullets');
+      baseAllowedActions.add('convertActivitiesToCvBullets');
+      creditUnlockedActions.push('rewriteExperience', 'generateProjectBullets', 'convertActivitiesToCvBullets');
+    }
+
+    if (hasEnoughCredits(user, FEATURE_COSTS.atsReview)) {
+      baseAllowedActions.add('atsReview');
+      baseAllowedActions.add('tailorCvForJob');
+      creditUnlockedActions.push('atsReview', 'tailorCvForJob');
+    }
+
+    if (hasEnoughCredits(user, FEATURE_COSTS.coverLetter)) {
+      baseAllowedActions.add('generateCoverLetter');
+      creditUnlockedActions.push('generateCoverLetter');
+    }
+  }
+
+  const allowedActions = Array.from(baseAllowedActions);
+  const upgradeRequiredActions = getUpgradeRequiredActions(plan).filter(
+    (action) => !baseAllowedActions.has(action)
+  );
 
   return NextResponse.json({
     plan,
+    isPremium: premiumActive,
+    credits: user.credits || 0,
     remainingToday,
     usedToday,
     aiLimit,
     allowedActions,
+    creditUnlockedActions,
     ...(upgradeRequiredActions.length > 0 ? { upgradeRequiredActions } : {}),
     cvCount,
     cvLimit,

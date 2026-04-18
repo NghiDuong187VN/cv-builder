@@ -4,11 +4,14 @@ import { FREE_AI_DAILY_LIMIT } from '@/lib/ai';
 export const FREE_CV_LIMIT = 3;
 
 export interface QuotaStatusResponse {
-  plan: AiPlan;
+  plan: 'free' | 'premium';
+  isPremium: boolean;
+  credits: number;
   remainingToday: number | null;
   usedToday: number;
   aiLimit: number | null;
   allowedActions: AiAction[];
+  creditUnlockedActions?: AiAction[];
   upgradeRequiredActions?: AiAction[];
   cvCount: number;
   cvLimit: number | null;

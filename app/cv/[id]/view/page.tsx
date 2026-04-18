@@ -120,7 +120,7 @@ export default function ViewCVPage() {
           <div style={{ width: '1px', height: '16px', background: '#cbd5e1' }} />
           <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#334155' }}>{cv.title}</span>
         </div>
-        <ExportButton cvTitle={cv.title} printPath={`/cv/${cv.shareSlug || cv.cvId}/print`} />
+        <ExportButton cvTitle={cv.title} printPath={`/cv/${cv.shareSlug || cv.cvId}/print`} cvId={cv.cvId} watermarkRemoved={cv.watermarkRemoved} />
       </div>
 
       <div style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>

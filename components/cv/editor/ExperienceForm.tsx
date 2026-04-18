@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Briefcase, GripVertical, Plus, Trash2 } from 'lucide-react';
@@ -17,9 +17,9 @@ interface Props {
 }
 
 const TIPS = [
-  'Mô tả thành tích cụ thể và nên có số liệu khi có thể, ví dụ: "Tăng doanh số 30%" hoặc "Quản lý team 5 người".',
-  'Bắt đầu bằng động từ hành động như: Phát triển, Xây dựng, Quản lý, Tối ưu.',
-  'Sắp xếp kinh nghiệm từ mới nhất đến cũ hơn để nhà tuyển dụng đọc nhanh hơn.',
+  'Mo ta thanh tich cu the va nen co so lieu khi co the, vi du: "Tang doanh so 30%" hoac "Quan ly team 5 nguoi".',
+  'Bat dau bang dong tu hanh dong nhu: Phat trien, Xay dung, Quan ly, Toi uu.',
+  'Sap xep kinh nghiem tu moi nhat den cu hon de nha tuyen dung doc nhanh hon.',
 ];
 
 const newExp = (): Experience => ({
@@ -64,7 +64,7 @@ export default function ExperienceForm({
         }}
       >
         <p style={{ fontWeight: 700, fontSize: '0.8rem', color: '#10b981', marginBottom: '8px' }}>
-          Mẹo viết kinh nghiệm
+          Meo viet kinh nghiem
         </p>
         {TIPS.map((tip) => (
           <p key={tip} style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '2px' }}>
@@ -96,18 +96,18 @@ export default function ExperienceForm({
           <div>
             <p style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
               {aiPlan === 'premium'
-                ? 'AI rewrite đã sẵn sàng cho từng kinh nghiệm'
-                : 'AI rewrite kinh nghiệm chỉ có trong Premium'}
+                ? 'AI rewrite da san sang cho tung kinh nghiem'
+                : 'AI rewrite kinh nghiem can Premium hoac credit'}
             </p>
             <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
               {aiPlan === 'premium'
-                ? 'Nhấn "AI viết lại" để chuyển mô tả hiện tại thành bullet mạnh hơn, đúng văn phong CV.'
-                : 'Gói miễn phí chỉ có AI tạo summary cơ bản. Premium mở khóa viết lại bullet kinh nghiệm bằng Gemini.'}
+                ? 'Nhan "AI viet lai" de chuyen mo ta hien tai thanh bullet manh hon, dung van phong CV.'
+                : 'Ban co the mo khoa bang Premium hoac dung credit de viet lai bullet kinh nghiem bang Gemini.'}
             </p>
           </div>
           {aiPlan !== 'premium' && (
             <Link href="/pricing" className="btn btn-outline btn-sm" style={{ whiteSpace: 'nowrap' }}>
-              Nâng cấp Premium
+              Premium / Credit
             </Link>
           )}
         </div>
@@ -126,10 +126,10 @@ export default function ExperienceForm({
           >
             <Briefcase size={28} color="var(--text-muted)" style={{ marginBottom: '8px' }} />
             <p style={{ fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              Chưa có kinh nghiệm nào
+              Chua co kinh nghiem nao
             </p>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-              Thêm kinh nghiệm làm việc của bạn
+              Them kinh nghiem lam viec cua ban
             </p>
           </div>
         )}
@@ -157,7 +157,7 @@ export default function ExperienceForm({
               <GripVertical size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                  {exp.role || 'Vị trí mới'} {exp.company ? `- ${exp.company}` : ''}
+                  {exp.role || 'Vi tri moi'} {exp.company ? `- ${exp.company}` : ''}
                 </p>
               </div>
               <button
@@ -168,13 +168,13 @@ export default function ExperienceForm({
                 style={{ flexShrink: 0, opacity: canRewriteWithAi ? 1 : 0.6 }}
                 title={
                   canRewriteWithAi
-                    ? 'Viết lại mô tả bằng AI'
+                    ? 'Viet lai mo ta bang AI'
                     : aiStatusLoading
-                      ? 'Đang kiểm tra quyền AI'
-                      : 'Premium only'
+                      ? 'Dang kiem tra quyen AI'
+                      : 'Can Premium hoac credit'
                 }
               >
-                {aiLoadingIndex === index ? 'Đang viết...' : 'AI viết lại'}
+                {aiLoadingIndex === index ? 'Dang viet...' : 'AI viet lai'}
               </button>
               <button
                 onClick={() => remove(index)}
@@ -203,11 +203,11 @@ export default function ExperienceForm({
                       marginBottom: '4px',
                     }}
                   >
-                    Công ty *
+                    Cong ty *
                   </label>
                   <input
                     className="input"
-                    placeholder="Tên công ty"
+                    placeholder="Ten cong ty"
                     value={exp.company}
                     onChange={(event) => update(index, 'company', event.target.value)}
                   />
@@ -222,7 +222,7 @@ export default function ExperienceForm({
                       marginBottom: '4px',
                     }}
                   >
-                    Vị trí *
+                    Vi tri *
                   </label>
                   <input
                     className="input"
@@ -242,11 +242,11 @@ export default function ExperienceForm({
                     marginBottom: '4px',
                   }}
                 >
-                  Địa điểm
+                  Dia diem
                 </label>
                 <input
                   className="input"
-                  placeholder="Hồ Chí Minh"
+                  placeholder="Ho Chi Minh"
                   value={exp.location || ''}
                   onChange={(event) => update(index, 'location', event.target.value)}
                 />
@@ -262,7 +262,7 @@ export default function ExperienceForm({
                       marginBottom: '4px',
                     }}
                   >
-                    Từ tháng *
+                    Tu thang *
                   </label>
                   <input
                     className="input"
@@ -281,7 +281,7 @@ export default function ExperienceForm({
                       marginBottom: '4px',
                     }}
                   >
-                    Đến tháng
+                    Den thang
                   </label>
                   <input
                     className="input"
@@ -310,7 +310,7 @@ export default function ExperienceForm({
                     if (event.target.checked) update(index, 'to', '');
                   }}
                 />
-                {lang === 'vi' ? 'Đang làm việc tại đây' : 'I currently work here'}
+                {lang === 'vi' ? 'Dang lam viec tai day' : 'I currently work here'}
               </label>
               <div>
                 <label
@@ -322,13 +322,13 @@ export default function ExperienceForm({
                     marginBottom: '4px',
                   }}
                 >
-                  Mô tả công việc và thành tích
+                  Mo ta cong viec va thanh tich
                 </label>
                 <textarea
                   className="input"
                   rows={5}
                   placeholder={
-                    '- Phát triển các tính năng mới cho sản phẩm...\n- Tối ưu hiệu suất trang web, giảm thời gian tải 40%...\n- Làm việc trong môi trường Agile/Scrum...'
+                    '- Phat trien cac tinh nang moi cho san pham...\n- Toi uu hieu suat trang web, giam thoi gian tai 40%...\n- Lam viec trong moi truong Agile/Scrum...'
                   }
                   value={exp.description}
                   onChange={(event) => update(index, 'description', event.target.value)}
@@ -340,7 +340,7 @@ export default function ExperienceForm({
         ))}
 
         <button onClick={add} className="btn btn-outline" style={{ justifyContent: 'center', borderStyle: 'dashed' }}>
-          <Plus size={16} /> Thêm kinh nghiệm
+          <Plus size={16} /> Them kinh nghiem
         </button>
       </div>
     </div>

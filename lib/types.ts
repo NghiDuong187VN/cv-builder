@@ -10,6 +10,9 @@ export interface User {
   username: string;
   plan: 'free' | 'premium';
   planExpiry?: Date | null;
+  premiumUntil?: Date | null;
+  credits?: number;
+  monthlyAiUsage?: number;
   isAdmin: boolean;
   isActive: boolean;
   settings: {
@@ -18,6 +21,29 @@ export interface User {
   };
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  type: 'subscription' | 'credit';
+  planId: string;
+  amount: number;
+  status: 'pending' | 'paid' | 'failed' | 'cancelled';
+  paymentProvider: string;
+  transactionId?: string;
+  createdAt: Date;
+  paidAt?: Date | null;
+}
+
+export interface CreditTransaction {
+  id: string;
+  userId: string;
+  type: 'topup' | 'spend' | 'bonus' | 'refund';
+  amount: number;
+  reason: string;
+  relatedOrderId?: string;
+  createdAt: Date;
 }
 
 export interface PersonalInfo {
@@ -185,6 +211,7 @@ export interface CV {
     interests: string[];
     languages: { name: string; level: string }[];
   };
+  watermarkRemoved?: boolean;
   viewCount: number;
   downloadCount: number;
   createdAt: Date;
@@ -232,9 +259,11 @@ export interface CoverLetter {
   id: string;
   uid: string;
   title: string;
+  cvId?: string;
   recipientName?: string;
   companyName?: string;
   jobTitle?: string;
+  tone?: 'professional' | 'friendly' | 'concise';
   content: string;
   templateId: string;
   createdAt: Date;
@@ -261,6 +290,16 @@ export interface CvAiHistoryRecord {
   targetJob?: string;
   targetCompany?: string;
   metadata?: Record<string, unknown>;
+}
+
+export interface AiHistoryRecord {
+  id: string;
+  userId: string;
+  action: CvAiHistoryAction;
+  cvId: string;
+  input: Record<string, unknown>;
+  output: Record<string, unknown>;
+  createdAt: Date;
 }
 
 export interface AdminStats {

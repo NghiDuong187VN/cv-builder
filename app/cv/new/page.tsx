@@ -140,10 +140,10 @@ export default function NewCVPage() {
     }
     setCreating(true);
     try {
-      const cvId = await createCV(firebaseUser.uid, {
+      const token = await firebaseUser.getIdToken();
+      const payload = {
         title: cvTitle.trim(),
         templateId: selectedTemplate.templateId,
-        isPublic: false,
         language: 'vi',
         theme: {
           primaryColor: selectedTemplate.colors[0],
@@ -153,11 +153,32 @@ export default function NewCVPage() {
           showAvatar: true,
           accentStyle: 'gradient',
         },
+      };
+
+      const res = await fetch('/api/cv/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
       });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        if (res.status === 402) {
+          toast.error(data.message || 'Bạn cần nạp thêm credit hoặc nâng cấp Premium.');
+          router.push('/pricing');
+          return;
+        }
+        throw new Error(data.error || 'Có lỗi xảy ra');
+      }
+
       toast.success('Tạo CV thành công! 🎉');
-      router.push(`/cv/${cvId}/edit`);
-    } catch {
-      toast.error('Có lỗi xảy ra, vui lòng thử lại');
+      router.push(`/cv/${data.cvId}/edit`);
+    } catch (err: any) {
+      toast.error(err.message || 'Có lỗi xảy ra, vui lòng thử lại');
       setCreating(false);
     }
   };

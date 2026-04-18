@@ -10,8 +10,8 @@ import {
   Crown, Target, BarChart3, Zap, CheckCircle2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { getCVsByUser, getProfile } from '@/lib/firestore';
-import { CV, Profile } from '@/lib/types';
+import { getAiHistoryByUser, getCVsByUser, getProfile } from '@/lib/firestore';
+import { AiHistoryRecord, CV, Profile } from '@/lib/types';
 import Navbar from '@/components/layout/Navbar';
 import PremiumBanner from '@/components/ui/PremiumBanner';
 import toast from 'react-hot-toast';
@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const { firebaseUser, user, loading } = useAuth();
   const [cvs, setCvs] = useState<CV[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [aiHistory, setAiHistory] = useState<AiHistoryRecord[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const isPremium = user?.plan === 'premium';
 
@@ -33,9 +34,11 @@ export default function DashboardPage() {
       Promise.all([
         getCVsByUser(firebaseUser.uid),
         getProfile(firebaseUser.uid),
-      ]).then(([cvsData, profileData]) => {
+        getAiHistoryByUser(firebaseUser.uid),
+      ]).then(([cvsData, profileData, aiHistoryData]) => {
         setCvs(cvsData);
         setProfile(profileData);
+        setAiHistory(aiHistoryData);
         setDataLoading(false);
       });
     }
@@ -374,6 +377,67 @@ export default function DashboardPage() {
             </motion.div>
           )}
 
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} style={{ marginBottom: '28px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '18px', flexWrap: 'wrap' }}>
+              <div>
+                <h2 style={{ fontWeight: 800, fontSize: '1.15rem', marginBottom: '4px' }}>
+                  <Sparkles size={18} style={{ marginRight: '8px', verticalAlign: 'middle', color: 'var(--primary)' }} />
+                  AI History
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.86rem' }}>
+                  Lịch sử các lần dùng AI để rewrite, ATS review và tạo cover letter.
+                </p>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                {aiHistory.length} lượt gần đây
+              </div>
+            </div>
+
+            {aiHistory.length === 0 ? (
+              <div className="card" style={{ padding: '22px' }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                  Chưa có lịch sử AI. Hãy mở editor CV để thử `Viết lại bằng AI`, `Phân tích CV` hoặc `Tạo cover letter`.
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {aiHistory.slice(0, 8).map((entry) => (
+                  <div key={entry.id} className="card" style={{ padding: '18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                      <div>
+                        <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                          {getAiHistoryLabel(entry.action)}
+                        </p>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                          {formatHistoryDate(entry.createdAt)}
+                        </p>
+                      </div>
+                      {entry.cvId && (
+                        <Link href={`/cv/${entry.cvId}/edit`} className="btn btn-outline btn-sm">
+                          Mở CV
+                        </Link>
+                      )}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+                      <div>
+                        <p style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Input</p>
+                        <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'rgba(99,102,241,0.04)', border: '1px solid var(--border)', borderRadius: '10px', padding: '12px' }}>
+                          {JSON.stringify(entry.input, null, 2)}
+                        </pre>
+                      </div>
+                      <div>
+                        <p style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Output</p>
+                        <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'rgba(16,185,129,0.04)', border: '1px solid var(--border)', borderRadius: '10px', padding: '12px' }}>
+                          {JSON.stringify(entry.output, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+
           {/* Recent CVs */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -461,6 +525,35 @@ function CVCard({ cv }: { cv: CV }) {
       </div>
     </div>
   );
+}
+
+function getAiHistoryLabel(action: AiHistoryRecord['action']) {
+  switch (action) {
+    case 'rewriteExperience':
+      return 'AI Rewrite Experience';
+    case 'atsReview':
+      return 'ATS Review theo JD';
+    case 'generateCoverLetter':
+      return 'Cover Letter Generator';
+    case 'generateSummary':
+      return 'Summary AI';
+    default:
+      return action;
+  }
+}
+
+function formatHistoryDate(value: AiHistoryRecord['createdAt']) {
+  const date =
+    value instanceof Date
+      ? value
+      : typeof (value as { toDate?: () => Date })?.toDate === 'function'
+        ? (value as { toDate: () => Date }).toDate()
+        : new Date(value as unknown as string);
+
+  return new Intl.DateTimeFormat('vi-VN', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
 }
 
 function calculateCompletion(profile: Profile): number {

@@ -5,11 +5,13 @@ const stringListSchema = z
   .transform((items) => items.map((item) => item.trim()).filter(Boolean));
 
 export const atsReviewResponseSchema = z.object({
-  score: z.coerce.number().min(0).max(100),
-  strengths: stringListSchema,
-  gaps: stringListSchema,
-  keywordsMissing: stringListSchema,
-  recommendations: stringListSchema,
+  matchScore: z.coerce.number().min(0).max(100),
+  missingKeywords: stringListSchema,
+  matchedKeywords: stringListSchema,
+  weakSections: stringListSchema,
+  improvementSuggestions: stringListSchema,
+  suggestedSummary: z.string().trim(),
+  suggestedExperienceBullets: stringListSchema,
 });
 
 export type AtsReviewResponse = z.infer<typeof atsReviewResponseSchema>;
