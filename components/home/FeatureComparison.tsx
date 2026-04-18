@@ -1,16 +1,20 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Crown, Minus, Wallet } from 'lucide-react';
+import { Check, Coins, Crown, Minus, Wallet } from 'lucide-react';
 import Link from 'next/link';
+import { getStartingPriceLabel } from '@/lib/billing';
 
-type CellValue = boolean | string;
+/* ─── Data types ─────────────────────────────────────────── */
+type CellValue =
+  | boolean          // true = checkmark, false = dash
+  | string;          // text label
 
 interface CompareRow {
   label: string;
   free: CellValue;
   premium: CellValue;
-  highlight?: boolean;
+  credits: CellValue;
 }
 
 interface CompareGroup {
@@ -18,121 +22,220 @@ interface CompareGroup {
   rows: CompareRow[];
 }
 
-const compareGroups: CompareGroup[] = [
+/* ─── Data ───────────────────────────────────────────────── */
+const COMPARE_GROUPS: CompareGroup[] = [
   {
-    title: 'Tạo và lưu CV',
+    title: 'Tạo & lưu CV',
     rows: [
-      { label: 'Số CV có thể tạo', free: 'Tối đa 3 CV', premium: 'Không giới hạn' },
-      { label: 'Mẫu CV cơ bản', free: true, premium: true },
-      { label: 'Toàn bộ mẫu CV cao cấp', free: false, premium: true, highlight: true },
-      { label: 'Xuất PDF', free: 'Cơ bản', premium: 'Premium, sạch hơn', highlight: true },
-      { label: 'Chia sẻ link CV', free: true, premium: true },
+      {
+        label: 'Số lượng CV',
+        free: 'Tối đa 3 CV',
+        premium: 'Không giới hạn',
+        credits: 'Không giới hạn',
+      },
+      {
+        label: 'Template Premium',
+        free: false,
+        premium: true,
+        credits: '1 credit / lần',
+      },
+      {
+        label: 'PDF không watermark',
+        free: false,
+        premium: true,
+        credits: '1 credit / lần',
+      },
     ],
   },
   {
-    title: 'AI và tối ưu ứng tuyển',
+    title: 'AI & tối ưu nội dung',
     rows: [
-      { label: 'AI tạo tóm tắt cơ bản', free: '3 lượt/ngày', premium: 'Không giới hạn theo gói', highlight: true },
-      { label: 'AI viết lại kinh nghiệm theo vị trí', free: false, premium: true, highlight: true },
-      { label: 'ATS Review theo JD', free: false, premium: true, highlight: true },
-      { label: 'AI tạo cover letter theo target job/company/JD', free: false, premium: true, highlight: true },
-      { label: 'Lưu cover letter vào tài khoản', free: false, premium: true },
-      { label: 'Tối ưu CV cho nhiều vị trí khác nhau', free: false, premium: true },
+      {
+        label: 'AI Summary',
+        free: '3 lần / ngày',
+        premium: 'Không giới hạn',
+        credits: '2 credits / lần',
+      },
+      {
+        label: 'AI Rewrite',
+        free: false,
+        premium: true,
+        credits: '2 credits / lần',
+      },
+      {
+        label: 'ATS Review',
+        free: false,
+        premium: true,
+        credits: '5 credits / lần',
+      },
+      {
+        label: 'Cover Letter',
+        free: false,
+        premium: true,
+        credits: '5 credits / lần',
+      },
+    ],
+  },
+  {
+    title: 'Hồ sơ & theo dõi',
+    rows: [
+      {
+        label: 'Public Profile nâng cao',
+        free: false,
+        premium: true,
+        credits: false,
+      },
+      {
+        label: 'Application Tracker',
+        free: false,
+        premium: true,
+        credits: false,
+      },
+    ],
+  },
+  {
+    title: 'Phù hợp với ai',
+    rows: [
+      {
+        label: 'Phù hợp với ai',
+        free: 'Mới bắt đầu tìm việc',
+        premium: 'Đang ứng tuyển tích cực',
+        credits: 'Chỉ dùng một vài tính năng',
+      },
     ],
   },
 ];
 
-function Cell({ value }: { value: CellValue }) {
+/* ─── Cell renderer ──────────────────────────────────────── */
+function Cell({ value, col }: { value: CellValue; col: 'free' | 'premium' | 'credits' }) {
   if (value === true) {
+    const color = col === 'premium' ? '#6366f1' : col === 'credits' ? '#f59e0b' : '#10b981';
     return (
-      <div className="cell-icon success">
-        <Check size={14} strokeWidth={3} />
-      </div>
+      <span className={`fc-cell-icon fc-cell-icon--${col}`}>
+        <Check size={13} strokeWidth={3} color={color} />
+      </span>
     );
   }
-
   if (value === false) {
     return (
-      <div className="cell-icon muted">
-        <Minus size={14} strokeWidth={3} />
-      </div>
+      <span className="fc-cell-icon fc-cell-icon--muted">
+        <Minus size={13} strokeWidth={2.5} />
+      </span>
     );
   }
-
-  return <span className="cell-text">{value}</span>;
+  return <span className={`fc-cell-text fc-cell-text--${col}`}>{value}</span>;
 }
 
+/* ─── Component ──────────────────────────────────────────── */
 export default function FeatureComparison() {
   return (
     <section className="section" style={{ background: 'rgba(99,102,241,0.02)' }}>
       <div className="container">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           style={{ textAlign: 'center', marginBottom: '40px' }}
         >
-          <div className="comparison-eyebrow">So sánh Free và Premium</div>
+          <div className="fc-eyebrow">So sánh các gói</div>
           <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 800, marginBottom: '12px' }}>
-            Khác biệt nằm ở <span className="gradient-text">mức độ tối ưu hồ sơ</span>
+            Free, Premium hay Credits —{' '}
+            <span className="gradient-text">gói nào phù hợp với bạn?</span>
           </h2>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto', lineHeight: 1.75 }}>
-            Free đủ để bắt đầu. Premium phù hợp khi bạn muốn tạo nhiều CV, tối ưu theo từng vị trí và tận dụng AI để tăng tốc ứng tuyển.
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '640px', margin: '0 auto', lineHeight: 1.75 }}>
+            Chỉ cần dùng một vài tính năng? Hãy xem tab <strong>Nạp Credits</strong> trên trang Giá —{' '}
+            dùng bao nhiêu trả bấy nhiêu, không cần gói tháng.
           </p>
         </motion.div>
 
+        {/* Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="comparison-shell"
+          className="fc-shell"
         >
-          <div className="comparison-note">
-            Cần 1-2 CV Premium? Bạn có thể dùng mục <strong>Mua lượt tạo CV Premium</strong> ở phía trên thay vì đăng ký gói tháng.
-          </div>
+          <div className="fc-scroll">
+            <div className="fc-table">
 
-          <div className="comparison-scroll">
-            <div className="comparison-table">
-              <div className="comparison-header comparison-grid">
-                <div className="feature-col">
-                  <span className="header-label">Tính năng</span>
+              {/* Column headers */}
+              <div className="fc-header fc-row">
+                <div className="fc-col fc-col--feature">
+                  <span className="fc-header-label">Tính năng</span>
                 </div>
-                <div className="plan-col">
-                  <div className="plan-chip free-chip">
-                    <Wallet size={16} />
-                    <span>Free</span>
+
+                {/* Free */}
+                <div className="fc-col fc-col--free">
+                  <div className="fc-plan-chip fc-plan-chip--free">
+                    <Wallet size={14} /> Free
                   </div>
-                  <strong>0đ mãi mãi</strong>
+                  <strong className="fc-plan-price">0đ mãi mãi</strong>
                 </div>
-                <div className="plan-col plan-col-premium">
-                  <div className="plan-chip premium-chip">
-                    <Crown size={16} />
-                    <span>Premium</span>
+
+                {/* Premium */}
+                <div className="fc-col fc-col--premium">
+                  <div className="fc-plan-chip fc-plan-chip--premium">
+                    <Crown size={14} /> Premium
                   </div>
-                  <strong>Từ 49.000đ</strong>
+                  <strong className="fc-plan-price">Từ {getStartingPriceLabel()}</strong>
+                </div>
+
+                {/* Credits */}
+                <div className="fc-col fc-col--credits">
+                  <div className="fc-plan-chip fc-plan-chip--credits">
+                    <Coins size={14} /> Credits
+                  </div>
+                  <strong className="fc-plan-price">1.000đ / credit</strong>
                 </div>
               </div>
 
-              {compareGroups.map(group => (
+              {/* Groups */}
+              {COMPARE_GROUPS.map(group => (
                 <div key={group.title}>
-                  <div className="group-title">{group.title}</div>
-                  {group.rows.map(row => (
-                    <div key={row.label} className={`comparison-grid comparison-row ${row.highlight ? 'comparison-row-highlight' : ''}`}>
-                      <div className="feature-col feature-label">{row.label}</div>
-                      <div className="plan-col"><Cell value={row.free} /></div>
-                      <div className="plan-col plan-col-premium"><Cell value={row.premium} /></div>
+                  <div className="fc-group-title">{group.title}</div>
+
+                  {group.rows.map((row, i) => (
+                    <div
+                      key={row.label}
+                      className={`fc-row ${i % 2 === 1 ? 'fc-row--alt' : ''}`}
+                    >
+                      <div className="fc-col fc-col--feature fc-feature-label">
+                        {row.label}
+                      </div>
+                      <div className="fc-col fc-col--free">
+                        <Cell value={row.free} col="free" />
+                      </div>
+                      <div className="fc-col fc-col--premium">
+                        <Cell value={row.premium} col="premium" />
+                      </div>
+                      <div className="fc-col fc-col--credits">
+                        <Cell value={row.credits} col="credits" />
+                      </div>
                     </div>
                   ))}
                 </div>
               ))}
 
-              <div className="comparison-grid comparison-footer">
-                <div className="feature-col footer-copy">Chọn gói theo đúng nhịp ứng tuyển của bạn.</div>
-                <div className="plan-col">
-                  <Link href="/auth" className="table-cta table-cta-free">Bắt đầu miễn phí</Link>
+              {/* Footer CTAs */}
+              <div className="fc-footer fc-row">
+                <div className="fc-col fc-col--feature fc-footer-copy">
+                  Chọn đúng theo nhịp ứng tuyển của bạn.
                 </div>
-                <div className="plan-col plan-col-premium">
-                  <Link href="#premium-plans" className="table-cta table-cta-premium">Xem gói Premium</Link>
+                <div className="fc-col fc-col--free">
+                  <Link href="/auth" className="fc-cta fc-cta--free">
+                    Bắt đầu miễn phí
+                  </Link>
+                </div>
+                <div className="fc-col fc-col--premium">
+                  <Link href="/pricing" className="fc-cta fc-cta--premium">
+                    Xem gói Premium
+                  </Link>
+                </div>
+                <div className="fc-col fc-col--credits">
+                  <Link href="/pricing" className="fc-cta fc-cta--credits">
+                    Nạp Credits
+                  </Link>
                 </div>
               </div>
             </div>
@@ -141,7 +244,7 @@ export default function FeatureComparison() {
       </div>
 
       <style jsx>{`
-        .comparison-eyebrow {
+        .fc-eyebrow {
           display: inline-flex;
           align-items: center;
           gap: 8px;
@@ -155,169 +258,212 @@ export default function FeatureComparison() {
           margin-bottom: 16px;
         }
 
-        .comparison-shell {
+        /* Shell & scroll wrapper */
+        .fc-shell {
           background: var(--bg-card);
           border: 1px solid var(--border);
           border-radius: 24px;
           overflow: hidden;
           box-shadow: var(--shadow-xl);
         }
-
-        .comparison-note {
-          padding: 16px 20px;
-          background: rgba(245, 158, 11, 0.08);
-          border-bottom: 1px solid rgba(245, 158, 11, 0.16);
-          color: var(--text-secondary);
-          line-height: 1.7;
-        }
-
-        .comparison-scroll {
+        .fc-scroll {
           overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .fc-table {
+          min-width: 680px;
         }
 
-        .comparison-table {
-          min-width: 760px;
-        }
-
-        .comparison-grid {
+        /* Row layout */
+        .fc-row {
           display: grid;
-          grid-template-columns: minmax(280px, 1fr) 180px 220px;
-        }
-
-        .comparison-header {
-          background: rgba(99, 102, 241, 0.04);
+          grid-template-columns: minmax(200px, 1.6fr) repeat(3, minmax(120px, 1fr));
           border-bottom: 1px solid var(--border);
         }
+        .fc-row:last-child {
+          border-bottom: none;
+        }
+        .fc-row--alt {
+          background: rgba(99, 102, 241, 0.015);
+        }
 
-        .feature-col,
-        .plan-col {
-          padding: 18px 22px;
+        /* Column base */
+        .fc-col {
+          padding: 14px 16px;
           display: flex;
           align-items: center;
           justify-content: center;
           text-align: center;
         }
-
-        .feature-col {
+        .fc-col--feature {
           justify-content: flex-start;
           text-align: left;
+          border-right: 1px solid var(--border);
+        }
+        .fc-col--premium {
+          background: rgba(99, 102, 241, 0.025);
         }
 
-        .plan-col {
-          border-left: 1px solid var(--border);
+        /* Header row */
+        .fc-header {
+          background: rgba(99, 102, 241, 0.04);
+          border-bottom: 2px solid var(--border);
+        }
+        .fc-header .fc-col {
+          padding: 18px 16px;
           flex-direction: column;
           gap: 8px;
         }
-
-        .plan-col-premium {
-          background: rgba(99, 102, 241, 0.03);
-        }
-
-        .header-label {
-          font-size: 0.84rem;
+        .fc-header-label {
+          font-size: 0.8rem;
           font-weight: 700;
           color: var(--text-muted);
+          align-self: flex-start;
         }
-
-        .plan-chip {
+        .fc-plan-chip {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          padding: 8px 12px;
+          gap: 6px;
+          padding: 6px 12px;
           border-radius: 999px;
-          font-size: 0.82rem;
+          font-size: 0.8rem;
           font-weight: 700;
         }
-
-        .free-chip {
+        .fc-plan-chip--free {
           background: rgba(16, 185, 129, 0.12);
           color: #059669;
         }
-
-        .premium-chip {
-          background: linear-gradient(135deg, #f59e0b, #ec4899);
+        .fc-plan-chip--premium {
+          background: var(--gradient-primary);
           color: white;
         }
-
-        .group-title {
-          padding: 12px 22px;
-          border-top: 1px solid var(--border);
-          border-bottom: 1px solid var(--border);
-          background: rgba(99, 102, 241, 0.04);
+        .fc-plan-chip--credits {
+          background: rgba(245, 158, 11, 0.12);
+          color: #b45309;
+        }
+        .fc-plan-price {
           font-size: 0.88rem;
-          font-weight: 800;
           color: var(--text-primary);
         }
 
-        .comparison-row {
+        /* Group title */
+        .fc-group-title {
+          padding: 10px 16px;
+          background: rgba(99, 102, 241, 0.05);
           border-bottom: 1px solid var(--border);
+          border-top: 1px solid var(--border);
+          font-size: 0.8rem;
+          font-weight: 800;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
 
-        .comparison-row-highlight {
-          background: rgba(245, 158, 11, 0.04);
-        }
-
-        .feature-label {
-          font-size: 0.9rem;
+        /* Feature label */
+        .fc-feature-label {
+          font-size: 0.88rem;
           color: var(--text-secondary);
-          line-height: 1.6;
+          line-height: 1.5;
         }
 
-        .cell-icon {
+        /* Cell icon */
+        .fc-cell-icon {
           width: 24px;
           height: 24px;
-          border-radius: 999px;
+          border-radius: 50%;
           display: inline-flex;
           align-items: center;
           justify-content: center;
         }
-
-        .cell-icon.success {
-          background: rgba(16, 185, 129, 0.12);
-          color: #10b981;
+        .fc-cell-icon--free {
+          background: rgba(16, 185, 129, 0.1);
         }
-
-        .cell-icon.muted {
-          background: rgba(148, 163, 184, 0.12);
+        .fc-cell-icon--premium {
+          background: rgba(99, 102, 241, 0.1);
+        }
+        .fc-cell-icon--credits {
+          background: rgba(245, 158, 11, 0.1);
+        }
+        .fc-cell-icon--muted {
+          background: rgba(148, 163, 184, 0.1);
           color: var(--text-muted);
         }
 
-        .cell-text {
-          font-size: 0.86rem;
-          line-height: 1.5;
-          color: var(--text-secondary);
+        /* Cell text */
+        .fc-cell-text {
+          font-size: 0.82rem;
           font-weight: 600;
+          line-height: 1.4;
         }
+        .fc-cell-text--free    { color: #059669; }
+        .fc-cell-text--premium { color: var(--primary); }
+        .fc-cell-text--credits { color: #b45309; }
 
-        .comparison-footer {
-          background: rgba(99, 102, 241, 0.04);
+        /* Footer row */
+        .fc-footer {
+          background: rgba(99, 102, 241, 0.03);
+          border-top: 2px solid var(--border);
         }
-
-        .footer-copy {
-          font-size: 0.88rem;
+        .fc-footer .fc-col {
+          padding: 16px;
+        }
+        .fc-footer-copy {
+          font-size: 0.84rem;
           color: var(--text-muted);
+          font-style: italic;
         }
 
-        .table-cta {
-          width: 100%;
+        /* CTAs */
+        .fc-cta {
           display: inline-flex;
           justify-content: center;
           align-items: center;
+          width: 100%;
           text-decoration: none;
           font-weight: 700;
-          font-size: 0.84rem;
-          padding: 11px 14px;
+          font-size: 0.82rem;
+          padding: 10px 12px;
           border-radius: 12px;
+          transition: var(--transition);
         }
-
-        .table-cta-free {
-          background: rgba(16, 185, 129, 0.12);
+        .fc-cta--free {
+          background: rgba(16, 185, 129, 0.1);
           color: #059669;
+          border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .fc-cta--free:hover {
+          background: rgba(16, 185, 129, 0.18);
+        }
+        .fc-cta--premium {
+          background: var(--gradient-primary);
+          color: white;
+          box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+        .fc-cta--premium:hover {
+          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+          transform: translateY(-1px);
+        }
+        .fc-cta--credits {
+          background: rgba(245, 158, 11, 0.1);
+          color: #b45309;
+          border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .fc-cta--credits:hover {
+          background: rgba(245, 158, 11, 0.18);
         }
 
-        .table-cta-premium {
-          background: linear-gradient(135deg, #f59e0b, #ec4899);
-          color: white;
+        /* Mobile hint */
+        @media (max-width: 720px) {
+          .fc-shell::before {
+            content: '← Vuốt ngang để xem đầy đủ';
+            display: block;
+            padding: 10px 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-style: italic;
+            border-bottom: 1px solid var(--border);
+            background: rgba(99, 102, 241, 0.03);
+          }
         }
       `}</style>
     </section>

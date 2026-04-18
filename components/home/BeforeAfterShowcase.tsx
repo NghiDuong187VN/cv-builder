@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Crown, ArrowRight, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { getStartingPriceLabel } from '@/lib/billing';
 
 interface Transformation {
   category: string;
@@ -313,7 +314,7 @@ export default function BeforeAfterShowcase() {
                       boxShadow: '0 4px 16px rgba(245,158,11,0.4)',
                     }}
                   >
-                    <Crown size={14} /> Xem gói Premium từ 49.000đ
+                    <Crown size={14} /> Mở khóa AI với Premium
                   </Link>
                 </div>
               </motion.div>

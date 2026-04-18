@@ -19,9 +19,10 @@ export default function Footer() {
       { href: `mailto:${SUPPORT_INFO.email}`, label: 'Email hỗ trợ' },
     ],
     'Pháp lý': [
-      { href: '#privacy', label: 'Chính sách bảo mật' },
-      { href: '#terms', label: 'Điều khoản sử dụng' },
-      { href: '#cookies', label: 'Cookie Policy' },
+      { href: '/privacy-policy', label: 'Chính sách bảo mật' },
+      { href: '/terms', label: 'Điều khoản sử dụng' },
+      { href: '/refund-policy', label: 'Chính sách hoàn tiền' },
+      { href: '/cookie-policy', label: 'Chính sách Cookie' },
     ],
   };
 
@@ -44,6 +45,13 @@ export default function Footer() {
       : []),
   ];
 
+  const legalLinks = [
+    { href: '/privacy-policy', label: 'Bảo mật' },
+    { href: '/terms', label: 'Điều khoản' },
+    { href: '/refund-policy', label: 'Hoàn tiền' },
+    { href: '/cookie-policy', label: 'Cookie' },
+  ];
+
   return (
     <footer
       style={{
@@ -61,6 +69,7 @@ export default function Footer() {
             padding: '56px 0 40px',
           }}
         >
+          {/* Brand column */}
           <div style={{ gridColumn: 'span 1' }}>
             <Link
               href="/"
@@ -174,6 +183,7 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Nav columns */}
           {Object.entries(links).map(([category, items]) => (
             <div key={category}>
               <h4
@@ -215,6 +225,7 @@ export default function Footer() {
           ))}
         </div>
 
+        {/* Bottom bar */}
         <div
           style={{
             borderTop: '1px solid var(--border)',
@@ -229,14 +240,27 @@ export default function Footer() {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem' }}>
             © {year} CVFlow. Bảo lưu mọi quyền.
           </p>
-          <p
-            style={{
-              color: 'var(--text-muted)',
-              fontSize: '0.83rem',
-            }}
-          >
-            Được xây dựng để giúp người Việt tạo CV chuyên nghiệp hơn.
-          </p>
+
+          {/* Inline legal links */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            {legalLinks.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                style={{
+                  color: 'var(--text-muted)',
+                  fontSize: '0.8rem',
+                  textDecoration: 'none',
+                  transition: 'var(--transition)',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+
           <a href={`mailto:${SUPPORT_INFO.email}`} className="btn btn-primary btn-sm">
             Liên hệ hỗ trợ
           </a>

@@ -7,7 +7,7 @@ import BeforeAfterShowcase from '@/components/home/BeforeAfterShowcase';
 export const metadata = {
   title: 'Bảng giá | CVFlow',
   description:
-    'Chọn gói phù hợp giữa Free Forever, mua lượt tạo CV Premium và Premium theo tháng. CVFlow giúp bạn tạo CV chuyên nghiệp, tối ưu ATS và cover letter bằng AI.',
+    'Bắt đầu miễn phí, nâng cấp Premium để tối ưu CV bằng AI, hoặc nạp credits khi chỉ cần dùng một vài tính năng trả phí. CVFlow giúp bạn tạo CV chuyên nghiệp, vượt ATS và tạo cover letter bằng AI.',
 };
 
 export default function PricingPage() {
@@ -36,7 +36,7 @@ export default function PricingPage() {
             }}
           >
             <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary)' }}>
-              Bảng giá dịch vụ
+              Bảng giá CVFlow
             </span>
           </div>
           <h1
@@ -47,7 +47,7 @@ export default function PricingPage() {
               lineHeight: 1.15,
             }}
           >
-            Bắt đầu miễn phí,
+            Chọn cách dùng
             <br />
             <span
               style={{
@@ -57,20 +57,20 @@ export default function PricingPage() {
                 backgroundClip: 'text',
               }}
             >
-              nâng cấp khi bạn thật sự cần.
+              phù hợp với bạn.
             </span>
           </h1>
           <p
             style={{
               color: 'var(--text-secondary)',
-              maxWidth: '760px',
+              maxWidth: '680px',
               margin: '0 auto',
               fontSize: '1.05rem',
               lineHeight: 1.75,
             }}
           >
-            CVFlow chia pricing thành 3 hướng rất rõ: <strong>Free Forever</strong> để bắt đầu,{' '}
-            <strong>Mua lượt tạo CV Premium</strong> khi chỉ cần 1-2 CV cao cấp, và <strong>Premium</strong> khi bạn muốn tối ưu nhiều hồ sơ, ATS review và cover letter trong suốt quá trình ứng tuyển.
+            Bắt đầu miễn phí, nâng cấp <strong>Premium</strong> để tối ưu CV bằng AI,
+            hoặc nạp <strong>Credits</strong> khi chỉ cần dùng một vài tính năng trả phí.
           </p>
         </div>
 
@@ -87,28 +87,36 @@ export default function PricingPage() {
 function FaqSection() {
   const faqs = [
     {
-      q: 'Free có đủ để bắt đầu xin việc không?',
-      a: 'Có. Gói Free phù hợp để bạn tạo và lưu tối đa 3 CV, dùng mẫu cơ bản, xuất PDF cơ bản, chia sẻ link CV và thử AI tạo phần tóm tắt cơ bản 3 lượt mỗi ngày.',
+      q: 'Free có đủ để bắt đầu không?',
+      a: 'Có. Gói Free cho phép tạo và lưu tối đa 3 CV, dùng mẫu cơ bản, xuất PDF, chia sẻ link CV công khai và thử AI tóm tắt tối đa 3 lần mỗi ngày. Đủ để bạn có hồ sơ hoàn chỉnh và bắt đầu ứng tuyển ngay mà không cần trả phí.',
     },
     {
-      q: 'Mua lượt tạo CV Premium phù hợp khi nào?',
-      a: 'Khi bạn chỉ cần tạo hoặc xuất 1-2 CV Premium hoàn chỉnh mà chưa muốn đăng ký gói Premium theo tháng. Quy đổi rất rõ: 1.000đ = 1 lượt.',
+      q: 'Premium khác gì so với Credits?',
+      a: 'Premium là gói theo thời gian (1, 3, 6 hoặc 12 tháng) — cho phép dùng tất cả tính năng AI không giới hạn trong suốt gói, bao gồm AI Rewrite, ATS Review, Cover Letter, template cao cấp và PDF không watermark. Credits là hình thức nạp theo nhu cầu, trả theo lượt — phù hợp khi bạn chỉ cần dùng một vài tính năng cụ thể mà không muốn đăng ký gói tháng.',
     },
     {
-      q: 'Premium khác gì so với Free?',
-      a: 'Premium mở khóa toàn bộ mẫu CV cao cấp, không giới hạn số CV, AI viết lại kinh nghiệm theo vị trí, ATS Review theo JD, tạo cover letter theo target job/company/JD và lưu cover letter vào tài khoản.',
+      q: 'Credits có hết hạn không?',
+      a: 'Credits hiện không hết hạn. Số credits bạn nạp sẽ được giữ nguyên cho đến khi sử dụng hết, không bị xóa theo thời gian. Bạn có thể nạp khi cần và dùng dần theo nhịp của mình.',
     },
     {
-      q: 'Nếu chưa có cổng thanh toán tự động thì sao?',
-      a: 'Khi bạn bấm mua gói hoặc mua lượt, CVFlow sẽ mở modal thanh toán thủ công. Modal sẽ hiển thị tên gói, số tiền, nội dung chuyển khoản gợi ý và hướng dẫn gửi ảnh xác nhận qua email hỗ trợ.',
+      q: 'Khi đã có Premium, credits có bị trừ không?',
+      a: 'Không. Khi gói Premium còn hạn, tất cả tính năng nằm trong gói đều được dùng tự do mà không tiêu credits. Credits chỉ bị trừ khi Premium hết hạn, hoặc khi bạn dùng tính năng nằm ngoài phạm vi gói hiện tại.',
     },
     {
-      q: 'Tôi chưa đăng nhập thì có mua được không?',
-      a: 'Chưa. Nếu bạn chưa đăng nhập, nút CTA sẽ đưa bạn về trang đăng nhập trước để đảm bảo gói hoặc lượt được gắn đúng vào tài khoản.',
+      q: 'Tôi có thể nâng cấp bất kỳ lúc nào không?',
+      a: 'Có. Bạn có thể mua gói Premium hoặc nạp credits bất kỳ lúc nào sau khi đăng nhập. Không cần chờ đến cuối kỳ hay hủy gói cũ — mua xong là kích hoạt ngay sau khi đội ngũ xác nhận thanh toán.',
     },
     {
-      q: 'Nên chọn gói Premium nào là hợp lý nhất?',
-      a: 'Nếu bạn đang tìm việc tích cực, gói 3 tháng là lựa chọn cân bằng nhất. Nếu muốn tiết kiệm lâu dài, gói 1 năm có chi phí trung bình theo tháng thấp nhất.',
+      q: 'AI Rewrite, ATS Review và Cover Letter hoạt động thế nào?',
+      a: 'Cả ba tính năng đều dùng AI phân tích nội dung CV của bạn kết hợp với mô tả công việc (JD) bạn nhập vào. AI Rewrite viết lại phần kinh nghiệm cho phù hợp từng vị trí. ATS Review đánh giá mức độ tương thích với JD và gợi ý cải thiện. Cover Letter tạo thư xin việc cá nhân hóa theo công ty và vị trí mục tiêu.',
+    },
+    {
+      q: 'Thanh toán hoạt động như thế nào?',
+      a: 'CVFlow hiện hỗ trợ thanh toán thủ công qua chuyển khoản ngân hàng. Khi bạn bấm mua gói hoặc nạp credits, hệ thống hiển thị thông tin chuyển khoản và nội dung gợi ý. Sau khi thanh toán, bạn gửi ảnh xác nhận qua email hỗ trợ để được kích hoạt.',
+    },
+    {
+      q: 'Nên chọn gói Premium nào?',
+      a: 'Nếu bạn đang tìm việc tích cực, gói 3 tháng là lựa chọn cân bằng nhất — tiết kiệm 48.000đ so với mua tháng lẻ. Nếu muốn tối ưu chi phí lâu dài, gói 1 năm chỉ khoảng 25.000đ/tháng và tiết kiệm nhiều nhất.',
     },
   ];
 

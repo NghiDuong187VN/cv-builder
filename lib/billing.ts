@@ -5,6 +5,7 @@ export interface PremiumPlanConfig {
   name: string;
   duration: string;
   durationDays: number;
+  months: number;
   price: number;
   avgPerMonth: number;
   badge?: string;
@@ -28,12 +29,18 @@ export interface PlanGuideOption {
   description: string;
 }
 
+/* ─── Single source of truth for key pricing values ─── */
+export const BASE_MONTHLY_PRICE = 49000;
+export const CREDIT_RATE_VND = 1000;
+export const MIN_CUSTOM_TOPUP = 10000;
+
 export const PREMIUM_PLANS: PremiumPlanConfig[] = [
   {
     id: 'premium_monthly',
     name: '1 tháng',
     duration: '1 tháng',
     durationDays: 30,
+    months: 1,
     price: 49000,
     avgPerMonth: 49000,
     description: 'Phù hợp khi bạn đang ứng tuyển gấp hoặc cần tối ưu hồ sơ trong thời gian ngắn.',
@@ -44,6 +51,7 @@ export const PREMIUM_PLANS: PremiumPlanConfig[] = [
     name: '3 tháng',
     duration: '3 tháng',
     durationDays: 90,
+    months: 3,
     price: 99000,
     avgPerMonth: 33000,
     badge: 'Phổ biến nhất',
@@ -55,8 +63,9 @@ export const PREMIUM_PLANS: PremiumPlanConfig[] = [
     name: '6 tháng',
     duration: '6 tháng',
     durationDays: 180,
-    price: 179000,
-    avgPerMonth: 29800,
+    months: 6,
+    price: 169000,
+    avgPerMonth: 28167,
     description: 'Phù hợp với sinh viên chuẩn bị thực tập, tốt nghiệp hoặc người đang chuyển ngành.',
     ctaLabel: 'Chọn gói 6 tháng',
   },
@@ -65,8 +74,9 @@ export const PREMIUM_PLANS: PremiumPlanConfig[] = [
     name: '1 năm',
     duration: '1 năm',
     durationDays: 365,
+    months: 12,
     price: 299000,
-    avgPerMonth: 24900,
+    avgPerMonth: 24917,
     badge: 'Tiết kiệm nhất',
     description: 'Dành cho người muốn duy trì hồ sơ chuyên nghiệp lâu dài và tối ưu liên tục cho nhiều cơ hội.',
     ctaLabel: 'Chọn gói 1 năm',
@@ -78,45 +88,74 @@ export const TOP_UP_PACKAGES: TopUpPackageConfig[] = [
     id: 'topup_10',
     amount: 10000,
     credits: 10,
-    label: '10 lượt',
-    description: 'Phù hợp khi bạn chỉ cần tạo hoặc xuất 1 CV Premium hoàn chỉnh.',
-    ctaLabel: 'Mua lượt tạo CV',
+    label: '10 credits',
+    description: 'Phù hợp khi bạn chỉ cần dùng thử một vài tính năng trả phí.',
+    ctaLabel: 'Nạp ngay',
   },
   {
     id: 'topup_20',
     amount: 20000,
-    credits: 20,
-    label: '20 lượt',
-    description: 'Hợp lý khi muốn tạo 1-2 CV Premium cho các vị trí khác nhau.',
-    ctaLabel: 'Mua lượt tạo CV',
+    credits: 22,
+    label: '22 credits',
+    description: 'Tặng thêm 2 credits so với quy đổi thường.',
+    ctaLabel: 'Nạp ngay',
   },
   {
     id: 'topup_30',
     amount: 30000,
-    credits: 30,
-    label: '30 lượt',
-    description: 'Dễ dùng nếu bạn đang thử nhiều mẫu Premium trước khi ứng tuyển.',
-    ctaLabel: 'Mua lượt tạo CV',
+    credits: 35,
+    label: '35 credits',
+    description: 'Tặng thêm 5 credits, dễ dùng cho nhiều tính năng AI.',
+    ctaLabel: 'Nạp ngay',
   },
   {
     id: 'topup_50',
     amount: 50000,
-    credits: 50,
-    label: '50 lượt',
-    description: 'Thích hợp khi bạn cần nhiều lần tạo và xuất CV Premium trong ngắn hạn.',
-    ctaLabel: 'Mua lượt tạo CV',
+    credits: 60,
+    label: '60 credits',
+    description: 'Tặng thêm 10 credits, thích hợp dùng trong ngắn hạn.',
+    ctaLabel: 'Nạp ngay',
   },
   {
     id: 'topup_100',
     amount: 100000,
-    credits: 100,
-    label: '100 lượt',
-    description: 'Dành cho người muốn nạp sẵn để chủ động dùng khi cần.',
-    ctaLabel: 'Mua lượt tạo CV',
+    credits: 130,
+    label: '130 credits',
+    description: 'Tặng thêm 30 credits, tiết kiệm nhất khi nạp nhiều.',
+    ctaLabel: 'Nạp ngay',
   },
 ];
 
+export const FEATURE_COSTS = {
+  createPremiumCv: 1,
+  exportPremiumPdf: 1,
+  aiSummary: 2,
+  aiRewrite: 2,
+  atsReview: 5,
+  coverLetter: 5,
+};
+
+export interface CreditUsageRule {
+  label: string;
+  credits: number;
+}
+
+export const CREDIT_USAGE_TABLE: CreditUsageRule[] = [
+  { label: 'Tạo 1 CV Premium', credits: FEATURE_COSTS.createPremiumCv },
+  { label: 'Xuất PDF Premium', credits: FEATURE_COSTS.exportPremiumPdf },
+  { label: 'AI Summary', credits: FEATURE_COSTS.aiSummary },
+  { label: 'AI Rewrite Experience', credits: FEATURE_COSTS.aiRewrite },
+  { label: 'ATS Review', credits: FEATURE_COSTS.atsReview },
+  { label: 'Cover Letter', credits: FEATURE_COSTS.coverLetter },
+];
+
+/** @deprecated Use TOP_UP_PACKAGES directly */
 export const CREDIT_RATES = TOP_UP_PACKAGES;
+
+/** Formatted starting price string for display, e.g. "49.000đ" */
+export function getStartingPriceLabel(): string {
+  return `${BASE_MONTHLY_PRICE.toLocaleString('vi-VN')}đ`;
+}
 
 export const FREE_PLAN_FEATURES = [
   'Free Forever',
@@ -177,14 +216,6 @@ export const PLAN_GUIDE_OPTIONS: PlanGuideOption[] = [
   },
 ];
 
-export const FEATURE_COSTS = {
-  createPremiumCv: 1,
-  exportPremiumPdf: 1,
-  aiSummary: 2,
-  aiRewrite: 2,
-  atsReview: 5,
-  coverLetter: 5,
-};
 
 export function isPremium(user: Partial<User> | null): boolean {
   if (!user) return false;
