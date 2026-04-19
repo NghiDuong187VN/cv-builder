@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Search, SlidersHorizontal, TrendingUp, Star, Zap,
-  Shield, LayoutGrid, List, X, ChevronDown,
+  Search, SlidersHorizontal, Zap,
+  Shield, ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import TemplateCard from '@/components/marketplace/TemplateCard';

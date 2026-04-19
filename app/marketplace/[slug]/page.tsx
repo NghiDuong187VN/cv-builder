@@ -34,20 +34,23 @@ export default function TemplateDetailPage() {
     if (!params?.slug) return;
     (async () => {
       setLoading(true);
-      const [tmpl, revs] = await Promise.all([
-        getMarketplaceTemplateBySlug(params.slug),
-        getReviewsByTemplate(params.slug), // will be empty if no match but harmless
-      ]);
+      // Load template first — reviews query needs template.id (doc ID), NOT slug
+      const tmpl = await getMarketplaceTemplateBySlug(params.slug);
       setTemplate(tmpl);
-      setReviews(revs);
 
-      if (tmpl && firebaseUser) {
-        const [o, f] = await Promise.all([
-          checkOwnership(firebaseUser.uid, tmpl.id),
-          isFavorited(firebaseUser.uid, tmpl.id),
-        ]);
-        setOwned(o);
-        setFavorited(f);
+      if (tmpl) {
+        // BUG-8 FIX: use tmpl.id not params.slug for reviews query
+        const revs = await getReviewsByTemplate(tmpl.id);
+        setReviews(revs);
+
+        if (firebaseUser) {
+          const [o, f] = await Promise.all([
+            checkOwnership(firebaseUser.uid, tmpl.id),
+            isFavorited(firebaseUser.uid, tmpl.id),
+          ]);
+          setOwned(o);
+          setFavorited(f);
+        }
       }
       setLoading(false);
     })();

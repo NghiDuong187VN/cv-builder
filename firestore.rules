@@ -1,0 +1,164 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // ─── Users (existing) ───────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      // Credits và subscription chỉ được ghi qua Admin SDK (API routes)
+      // User chỉ cho phép update một số field cá nhân
+      allow update: if isOwner(uid) &&
+        !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['credits', 'isAdmin', 'subscription', 'isPremium']);
+      allow create: if isOwner(uid);
+      allow delete: if false;
+    }
+
+    // ─── Marketplace Templates ───────────────────────────────────────────────
+    match /marketplace_templates/{templateId} {
+      // Public: chỉ đọc templates đã approved
+      allow read: if resource.data.status == 'approved';
+
+      // Seller: đọc template của chính mình (mọi status)
+      allow read: if isSignedIn() &&
+        resource.data.sellerId == request.auth.uid;
+
+      // Admin: đọc tất cả
+      allow read: if isAdmin();
+
+      // Ghi hoàn toàn qua Admin SDK (API routes)
+      // favoritesCount được update qua toggleFavorite — cho phép client update
+      // NHƯNG chỉ field đó, không được update status/sellerId/priceCredits
+      allow update: if isSignedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['favoritesCount']) &&
+        resource.data.status == 'approved';
+
+      // Không cho phép create/delete từ client
+      allow create, delete: if false;
+    }
+
+    // ─── Seller Profiles ─────────────────────────────────────────────────────
+    match /seller_profiles/{uid} {
+      // Seller đọc profile của mình
+      allow read: if isOwner(uid);
+
+      // Admin đọc tất cả
+      allow read: if isAdmin();
+
+      // Không cho phép client ghi bất kỳ field nào
+      // (status, totalEarnings v.v. chỉ được API Admin SDK ghi)
+      allow write: if false;
+    }
+
+    // ─── Template Ownerships ─────────────────────────────────────────────────
+    match /template_ownerships/{docId} {
+      // Chỉ owner mới được đọc record của mình
+      allow read: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+
+      // Admin đọc tất cả
+      allow read: if isAdmin();
+
+      // Chỉ Admin SDK mới được tạo (từ purchase API)
+      allow write: if false;
+    }
+
+    // ─── Marketplace Orders ──────────────────────────────────────────────────
+    match /marketplace_orders/{orderId} {
+      // Buyer hoặc Seller của order mới được đọc
+      allow read: if isSignedIn() && (
+        resource.data.buyerId == request.auth.uid ||
+        resource.data.sellerId == request.auth.uid
+      );
+
+      // Admin đọc tất cả
+      allow read: if isAdmin();
+
+      // Chỉ Admin SDK mới được tạo (từ purchase API)
+      allow write: if false;
+    }
+
+    // ─── Seller Earning Transactions ─────────────────────────────────────────
+    match /seller_earning_transactions/{txId} {
+      // Chỉ seller mới được đọc earning của mình
+      allow read: if isSignedIn() &&
+        resource.data.sellerId == request.auth.uid;
+
+      // Admin đọc tất cả
+      allow read: if isAdmin();
+
+      // Chỉ Admin SDK mới được tạo
+      allow write: if false;
+    }
+
+    // ─── Template Reviews ─────────────────────────────────────────────────────
+    match /template_reviews/{reviewId} {
+      // Public read (hiển thị review cho người xem)
+      allow read: if true;
+
+      // Không cho phép client write trực tiếp
+      // Review phải đi qua /api/marketplace/review (kiểm tra ownership server-side)
+      allow write: if false;
+    }
+
+    // ─── Favorites ────────────────────────────────────────────────────────────
+    match /favorites/{favId} {
+      // User chỉ đọc favorites của mình
+      allow read: if isSignedIn() &&
+        favId.matches(request.auth.uid + '_.*');
+
+      // User tạo/xóa favorite của mình
+      // favId = {userId}_{templateId}
+      allow create: if isSignedIn() &&
+        favId.matches(request.auth.uid + '_.*') &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.keys().hasAll(['id', 'userId', 'templateId', 'createdAt']);
+
+      allow delete: if isSignedIn() &&
+        favId.matches(request.auth.uid + '_.*') &&
+        resource.data.userId == request.auth.uid;
+
+      // No update (favorites are immutable, delete+create pattern)
+      allow update: if false;
+    }
+
+    // ─── Credit Transactions (read-only for owner) ────────────────────────────
+    match /credit_transactions/{txId} {
+      allow read: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+      allow write: if false; // Admin SDK only
+    }
+
+    // ─── Existing collections (carried over from original rules) ─────────────
+    match /cvs/{cvId} {
+      allow read, write: if isSignedIn() &&
+        (resource == null || resource.data.userId == request.auth.uid);
+    }
+
+    match /templates/{templateId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Catch-all: deny everything not explicitly allowed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

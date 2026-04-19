@@ -144,13 +144,9 @@ export async function getSellerProfile(uid: string): Promise<SellerProfile | nul
   return snap.exists() ? (snap.data() as SellerProfile) : null;
 }
 
-export async function saveSellerProfile(uid: string, data: Partial<SellerProfile>): Promise<void> {
-  await setDoc(
-    doc(db, 'seller_profiles', uid),
-    { ...data, uid, updatedAt: serverTimestamp() },
-    { merge: true }
-  );
-}
+// BUG-3 FIX: saveSellerProfile removed — writing to seller_profiles directly
+// from the client is unsafe (user could self-approve their own seller account).
+// All seller profile mutations go through /api/seller/apply (Admin SDK).
 
 // ─── Ownership ─────────────────────────────────────────────────────────────────
 
@@ -225,37 +221,29 @@ export async function getUserReviewForTemplate(
   return { ...snap.docs[0].data(), id: snap.docs[0].id } as TemplateReview;
 }
 
-export async function submitReview(
+/**
+ * submitReviewViaApi — BUG-2 FIX
+ * Reviews must be submitted via the server-side API which checks:
+ * 1. Valid auth token
+ * 2. User owns the template (template_ownerships check)
+ * 3. No duplicate review
+ * 4. Atomic rolling average update
+ */
+export async function submitReviewViaApi(
   templateId: string,
-  userId: string,
-  userName: string,
-  userAvatarUrl: string | undefined,
   rating: number,
-  comment: string
-): Promise<string> {
-  const ref = doc(collection(db, 'template_reviews'));
-  await setDoc(ref, {
-    id: ref.id,
-    templateId,
-    userId,
-    userName,
-    userAvatarUrl: userAvatarUrl ?? '',
-    rating,
-    comment,
-    createdAt: serverTimestamp(),
+  comment: string,
+  idToken: string
+): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch('/api/marketplace/review', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ templateId, rating, comment }),
   });
-
-  // Update rolling average on template
-  const templateRef = doc(db, 'marketplace_templates', templateId);
-  const tSnap = await getDoc(templateRef);
-  if (tSnap.exists()) {
-    const t = tSnap.data() as MarketplaceTemplate;
-    const newCount = (t.reviewCount ?? 0) + 1;
-    const newAvg = ((t.averageRating ?? 0) * (t.reviewCount ?? 0) + rating) / newCount;
-    await updateDoc(templateRef, { reviewCount: newCount, averageRating: parseFloat(newAvg.toFixed(2)) });
-  }
-
-  return ref.id;
+  return res.json();
 }
 
 // ─── Favorites ─────────────────────────────────────────────────────────────────
