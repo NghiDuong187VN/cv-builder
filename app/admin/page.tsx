@@ -154,6 +154,8 @@ export default function AdminDashboardPage() {
               { href: '/admin/templates', title: 'Templates', desc: 'Bật/tắt template, seed template', icon: Grid3X3 },
               { href: '/admin/plans', title: 'Plans', desc: 'Quản trị gói dịch vụ user', icon: Star },
               { href: '/admin/stats', title: 'Detailed Stats', desc: 'Báo cáo tăng trưởng hệ thống', icon: BarChartIcon },
+              { href: '/admin/marketplace', title: 'Duyệt Templates', desc: 'Marketplace template pending review', icon: Grid3X3 },
+              { href: '/admin/sellers', title: 'Duyệt Sellers', desc: 'Seller applications pending review', icon: Users },
             ].map(item => (
               <Link key={item.href} href={item.href} style={{ display: 'block', padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(99,102,241,0.15)', textDecoration: 'none' }}>
                 <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: 'rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>

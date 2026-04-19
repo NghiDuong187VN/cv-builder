@@ -10,7 +10,9 @@ import { getAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 
-const SEED_SECRET = process.env.SEED_SECRET ?? 'cvflow-seed-2026';
+const SEED_SECRET = process.env.SEED_SECRET ?? '';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const ALLOW_SEED_IN_PRODUCTION = process.env.ALLOW_SEED_IN_PRODUCTION === 'true';
 
 // ─── Demo data ──────────────────────────────────────────────────────────────────
 
@@ -275,6 +277,20 @@ const REVIEWS = [
 
 export async function POST(req: NextRequest) {
   try {
+    // ── Production guard ────────────────────────────────────────────────────
+    if (IS_PRODUCTION && !ALLOW_SEED_IN_PRODUCTION) {
+      return NextResponse.json(
+        { error: 'Seed API is disabled in production. Set ALLOW_SEED_IN_PRODUCTION=true to override.' },
+        { status: 403 }
+      );
+    }
+    if (!SEED_SECRET) {
+      return NextResponse.json(
+        { error: 'SEED_SECRET env var is not configured.' },
+        { status: 403 }
+      );
+    }
+
     const { secret } = await req.json().catch(() => ({ secret: '' }));
 
     if (secret !== SEED_SECRET) {

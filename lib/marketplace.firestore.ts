@@ -310,4 +310,23 @@ export async function getPendingTemplates(): Promise<MarketplaceTemplate[]> {
   return snap.docs.map((d) => ({ ...d.data(), id: d.id } as MarketplaceTemplate));
 }
 
+export async function getPendingSellerProfiles(): Promise<SellerProfile[]> {
+  const q = query(
+    collection(db, 'seller_profiles'),
+    where('status', '==', 'pending'),
+    orderBy('createdAt', 'asc')
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ ...d.data() } as SellerProfile));
+}
+
+export async function getAllSellerProfiles(): Promise<SellerProfile[]> {
+  const q = query(
+    collection(db, 'seller_profiles'),
+    orderBy('createdAt', 'desc')
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ ...d.data() } as SellerProfile));
+}
+
 export { toMillis as mpToMillis };
